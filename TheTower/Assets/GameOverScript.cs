@@ -8,8 +8,7 @@ public class GameOverScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        // 最初は非表示
-        this.gameObject.GetComponent<Text>().enabled = false;
+        this.gameOverUI.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -19,7 +18,7 @@ public class GameOverScript : MonoBehaviour {
 
     public void gameOver()
     {
-        // GAME OVERのテキストを表示する
-        this.gameObject.GetComponent<Text>().enabled = true;
+        // GAME OVERのUIを表示する
+        this.gameOverUI.SetActive(true);
     }
 }
