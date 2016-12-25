@@ -87,4 +87,11 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
+# ゲームに必要だが実行時にAssets/Resources内のファイルがコピーされてくる
+TheTower/msvcp100.dll
+TheTower/msvcr100.dll
+TheTower/OpenNI2.dll
+TheTower/NiTE2.dll
+TheTower/UnityInterface2.dll
+TheTower/OpenNI.ini
+TheTower/NiTE.ini
