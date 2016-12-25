@@ -642,8 +642,8 @@ public class KinectManager : MonoBehaviour
         float displayMapsWidthPercent = DisplayMapsWidthInPercent / 100f;
         float displayMapsHeightPercent = displayMapsWidthPercent * depthMapHeight / depthMapWidth;
 
-        float displayWidth = cameraRect.width * displayMapsWidthPercent;
-        float displayHeight = cameraRect.width * displayMapsHeightPercent;
+        displayWidth = cameraRect.width * displayMapsWidthPercent;
+        displayHeight = cameraRect.width * displayMapsHeightPercent;
     }
 
     private void initUserMap()
@@ -807,7 +807,7 @@ public class KinectManager : MonoBehaviour
 
     void Update()
     {
-        // if (KinectInitialized)　calibratePlayers();
+        if (KinectInitialized)　calibratePlayers();
     }
 
     private void calibratePlayers()
