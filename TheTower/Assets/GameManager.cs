@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public GameObject GameOverUI;
+    public GameObject player;
     public Camera mainCamera;
 
     private float time = 5.0f;
@@ -22,8 +23,16 @@ public class GameManager : MonoBehaviour
 
     public void gotoGameOverState()
     {
+        this.player.SendMessage("gotoGameOverState");
         this.mainCamera.SendMessage("activateBlur");
         this.GameOverUI.SetActive(true);
+    }
+
+    private void gotoGameState()
+    {
+        this.player.SendMessage("respawn");
+        this.mainCamera.SendMessage("deactivateBlur");
+        this.GameOverUI.SetActive(false);
     }
 
     public void onBackToTitlePageClick()
@@ -34,6 +43,7 @@ public class GameManager : MonoBehaviour
 
     public void onContinueButtonClick()
     {
+        this.gotoGameState();
         Debug.Log("Continue button was clicked");
     }
 }
