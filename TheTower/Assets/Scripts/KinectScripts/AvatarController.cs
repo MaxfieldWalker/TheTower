@@ -1,22 +1,10 @@
 ﻿using UnityEngine;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Text;
-
 public class AvatarController : MonoBehaviour
 {
-    // Bool that determines whether the avatar is active.
-    //public bool Active = true;
-
     // Bool that has the characters (facing the player) actions become mirrored. Default false.
+    // 鏡に映したようにマッピングを反転させるか? (ユーザーの右手がキャラクターの左手にマッピングされる)
     public bool MirroredMovement = false;
-
-    // Bool that determines whether the avatar will move or not in space.
-    // bool MovesInSpace = true;
 
     // Bool that determines whether the avatar is allowed to jump -- vertical movement
     // can cause some models to behave strangely, so use at your own discretion.
