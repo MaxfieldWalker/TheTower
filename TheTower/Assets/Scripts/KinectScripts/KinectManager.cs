@@ -68,7 +68,7 @@ public class KinectManager : MonoBehaviour
     public float MinTimeBetweenGestures = 0.7f;
 
     // List of Gesture Listeners. They must implement KinectGestures.GestureListenerInterface
-    public List<MonoBehaviour> GestureListeners;
+    public List<MonoBehaviour> MonoBehaviorGestureListeners;
 
     // GUI Text to show messages.
     public GameObject CalibrationText;
@@ -132,7 +132,7 @@ public class KinectManager : MonoBehaviour
     private float gestureTrackingAtTime1 = 0f, gestureTrackingAtTime2 = 0f;
 
     // List of Gesture Listeners. They must implement KinectGestures.GestureListenerInterface
-    public List<KinectGestures.GestureListenerInterface> gestureListeners;
+    public List<KinectGestures.IGestureListener> gestureListeners;
 
 
     // returns the single KinectManager instance
@@ -738,30 +738,29 @@ public class KinectManager : MonoBehaviour
             Player2Controllers.Add(avatar.GetComponent<AvatarController>());
         }
 
-
-        // try to automatically find the available gesture listeners in the scene
         // 取得したいジェスチャーのリスナーを取得しておく
-        if (GestureListeners.Count == 0)
+        if (MonoBehaviorGestureListeners.Count == 0)
         {
             MonoBehaviour[] monoScripts = FindObjectsOfType(typeof(MonoBehaviour)) as MonoBehaviour[];
 
             foreach (MonoBehaviour monoScript in monoScripts)
             {
-                if (typeof(KinectGestures.GestureListenerInterface).IsAssignableFrom(monoScript.GetType()))
+                // KinectGestures.IGestureListenerインターフェースを実装しているか?
+                if (typeof(KinectGestures.IGestureListener).IsAssignableFrom(monoScript.GetType()))
                 {
-                    GestureListeners.Add(monoScript);
+                    MonoBehaviorGestureListeners.Add(monoScript);
                 }
             }
         }
 
         // create the list of gesture listeners
-        gestureListeners = new List<KinectGestures.GestureListenerInterface>();
+        gestureListeners = new List<KinectGestures.IGestureListener>();
 
-        foreach (MonoBehaviour script in GestureListeners)
+        foreach (MonoBehaviour script in MonoBehaviorGestureListeners)
         {
-            if (script && (script is KinectGestures.GestureListenerInterface))
+            if (script && (script is KinectGestures.IGestureListener))
             {
-                KinectGestures.GestureListenerInterface listener = (KinectGestures.GestureListenerInterface)script;
+                KinectGestures.IGestureListener listener = (KinectGestures.IGestureListener)script;
                 gestureListeners.Add(listener);
             }
         }
@@ -776,7 +775,9 @@ public class KinectManager : MonoBehaviour
         // スケルトントラッキングで取得した値を丸める
         KinectWrapper.SetSkeletonSmoothing(0.7f);
 
+        // KinectManagerはシングルトンで使うためインスタンスを渡しておく
         instance = this;
+        // Kinectを初期化したフラグを立てる
         KinectInitialized = true;
     }
 
@@ -911,7 +912,7 @@ public class KinectManager : MonoBehaviour
                         }
                     }
 
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         if (listener.GestureCompleted(Player1ID, 0, gestureData.gesture,
                             (KinectWrapper.SkeletonJoint)gestureData.joint, gestureData.screenPos))
@@ -922,7 +923,7 @@ public class KinectManager : MonoBehaviour
                 }
                 else if (gestureData.cancelled)
                 {
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         if (listener.GestureCancelled(Player1ID, 0, gestureData.gesture,
                             (KinectWrapper.SkeletonJoint)gestureData.joint))
@@ -948,7 +949,7 @@ public class KinectManager : MonoBehaviour
                         }
                     }
 
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         listener.GestureInProgress(Player1ID, 0, gestureData.gesture, gestureData.progress,
                             (KinectWrapper.SkeletonJoint)gestureData.joint, gestureData.screenPos);
@@ -984,7 +985,7 @@ public class KinectManager : MonoBehaviour
                         }
                     }
 
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         if (listener.GestureCompleted(Player2ID, 1, gestureData.gesture,
                             (KinectWrapper.SkeletonJoint)gestureData.joint, gestureData.screenPos))
@@ -995,7 +996,7 @@ public class KinectManager : MonoBehaviour
                 }
                 else if (gestureData.cancelled)
                 {
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         if (listener.GestureCancelled(Player2ID, 1, gestureData.gesture,
                             (KinectWrapper.SkeletonJoint)gestureData.joint))
@@ -1021,7 +1022,7 @@ public class KinectManager : MonoBehaviour
                         }
                     }
 
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         listener.GestureInProgress(Player2ID, 1, gestureData.gesture, gestureData.progress,
                             (KinectWrapper.SkeletonJoint)gestureData.joint, gestureData.screenPos);
@@ -1255,7 +1256,7 @@ public class KinectManager : MonoBehaviour
                     }
 
                     // notify the gesture listeners about the new user
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         listener.UserDetected(UserId, 0);
                     }
@@ -1292,7 +1293,7 @@ public class KinectManager : MonoBehaviour
                     }
 
                     // notify the gesture listeners about the new user
-                    foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+                    foreach (KinectGestures.IGestureListener listener in gestureListeners)
                     {
                         listener.UserDetected(UserId, 1);
                     }
@@ -1336,7 +1337,7 @@ public class KinectManager : MonoBehaviour
                 controller.RotateToCalibrationPose(UserId, IsCalibrationNeeded());
             }
 
-            foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+            foreach (KinectGestures.IGestureListener listener in gestureListeners)
             {
                 listener.UserLost(UserId, 0);
             }
@@ -1356,7 +1357,7 @@ public class KinectManager : MonoBehaviour
                 controller.RotateToCalibrationPose(UserId, IsCalibrationNeeded());
             }
 
-            foreach (KinectGestures.GestureListenerInterface listener in gestureListeners)
+            foreach (KinectGestures.IGestureListener listener in gestureListeners)
             {
                 listener.UserLost(UserId, 1);
             }

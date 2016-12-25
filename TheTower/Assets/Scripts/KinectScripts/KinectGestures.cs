@@ -1,32 +1,51 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class KinectGestures
 {
 
-    public interface GestureListenerInterface
+    public interface IGestureListener
     {
         // Invoked when a new user is detected and tracking starts
         // Here you can start gesture detection with KinectManager.DetectGesture()
+        // 新規のユーザーが検知されトラッキングが開始された時に呼び出されます
+        // この時からKinectManager.DetectGesture()でジェスチャーの認識が可能になります
         void UserDetected(uint userId, int userIndex);
 
         // Invoked when a user is lost
         // Gestures for this user are cleared automatically, but you can free the used resources
+        // ユーザーがロストした時に呼び出されます
         void UserLost(uint userId, int userIndex);
 
-        // Invoked when a gesture is in progress 
-        void GestureInProgress(uint userId, int userIndex, Gestures gesture, float progress,
-            KinectWrapper.SkeletonJoint joint, Vector3 screenPos);
+        // Invoked when a gesture is in progress
+        // ジェスチャーの途中で呼び出されます
+        void GestureInProgress(
+            uint userId,
+            int userIndex,
+            Gestures gesture,
+            float progress,
+            KinectWrapper.SkeletonJoint joint,
+            Vector3 screenPos);
 
         // Invoked if a gesture is completed.
         // Returns true, if the gesture detection must be restarted, false otherwise
-        bool GestureCompleted(uint userId, int userIndex, Gestures gesture,
-            KinectWrapper.SkeletonJoint joint, Vector3 screenPos);
+        // ジェスチャーが完了した時に呼び出されます
+        // ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        bool GestureCompleted(
+            uint userId,
+            int userIndex,
+            Gestures gesture,
+            KinectWrapper.SkeletonJoint joint,
+            Vector3 screenPos);
 
         // Invoked if a gesture is cancelled.
         // Returns true, if the gesture detection must be retarted, false otherwise
-        bool GestureCancelled(uint userId, int userIndex, Gestures gesture,
+        // ジェスチャーが途中でキャンセルされた時に呼び出されます
+        // ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        bool GestureCancelled(
+            uint userId,
+            int userIndex,
+            Gestures gesture,
             KinectWrapper.SkeletonJoint joint);
     }
 
@@ -39,7 +58,12 @@ public class KinectGestures
         Psi,
         Tpose,
         Stop,
+
+        /// <summary>
+        /// 手を左右に何度か振る
+        /// </summary>
         Wave,
+
         Click,
         SwipeLeft,
         SwipeRight,
