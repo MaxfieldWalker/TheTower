@@ -34,6 +34,5 @@ public class KyleCollisionController : MonoBehaviour {
     private void OnCollisionExit(Collision collision)
     {
         Debug.Log("collide exit" + DateTime.Now.ToString());
-
     }
 }
