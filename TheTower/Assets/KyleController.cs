@@ -4,14 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class KyleController : MonoBehaviour {
+    public GameObject KylePrefab;
 
-    private GameObject wristBone_L;
-    private GameObject wristBone_R;
     private Kyle kyle;
 
     // Use this for initialization
     void Start () {
-        this.kyle = new Kyle(GameObject.Find("Left_Shoulder_Joint_01"), GameObject.Find("Right_Shoulder_Joint_01"));
+        this.kyle = new Kyle(
+            GameObject.Find("Left_Shoulder_Joint_01"),
+            GameObject.Find("Right_Shoulder_Joint_01"),
+            GameObject.Find("Left_Forearm_Joint_01"),
+            GameObject.Find("Right_Forearm_Joint_01"),
+            KylePrefab);
 	}
 	
 	// Update is called once per frame
@@ -38,6 +42,14 @@ public class KyleController : MonoBehaviour {
         }else if (Input.GetKey(KeyCode.A))
         {
             this.kyle.moveHandLeft();
+        }
+
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            this.kyle.moveBodyUp();
+        }else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            this.kyle.moveBodyDown();
         }
     }
 }
