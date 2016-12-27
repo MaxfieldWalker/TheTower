@@ -201,8 +201,8 @@ public class AvatarController : MonoBehaviour
         int boneIndex = GetJointIndex(joint, isMirrored);
         if (boneIndex < 0) return;
 
-        Transform boneTransform = bones[boneIndex];
-        if (boneTransform == null) return;
+        Transform boneToTransform = bones[boneIndex];
+        if (boneToTransform == null) return;
 
         // Grab the bone we're moving.
         int jointIndex = (int)joint;
@@ -218,7 +218,7 @@ public class AvatarController : MonoBehaviour
         //If an offset node is specified, combine the transform with its
         //orientation to essentially make the skeleton relative to the node
         // OffsetNoteが指定されている場合はOffsetNoteのtransfromを組み合わせて
-        // 相対化する
+        // ジョイントの回転を相対化する
         if (offsetNode != null)
         {
             // Grab the total rotation by adding the Euler and offset's Euler.
@@ -228,7 +228,7 @@ public class AvatarController : MonoBehaviour
         }
 
         // Smoothly transition to our new rotation.
-        boneTransform.rotation = Quaternion.Slerp(boneTransform.rotation, newRotation, Time.deltaTime * 3.0f);
+        boneToTransform.rotation = Quaternion.Slerp(boneToTransform.rotation, newRotation, Time.deltaTime * 3.0f);
     }
 
     /// <summary>
