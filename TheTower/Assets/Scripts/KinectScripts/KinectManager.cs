@@ -83,6 +83,10 @@ public class KinectManager : MonoBehaviour
     // GUI Texture to display the hand cursor for Player2
     public GameObject HandCursor2;
 
+    // ハンドカーソルの3Dオブジェクト版
+    public GameObject HandTexture_R;
+    public GameObject HandTexture_L;
+
     // Bool to specify whether Left/Right-hand-cursor and the Click-gesture control the mouse cursor and click
     public bool ControlMouseCursor = false;
     #endregion
@@ -914,7 +918,11 @@ public class KinectManager : MonoBehaviour
                         // ここで手のカーソルを動かしている
                         if (HandCursor1_R != null)
                         {
-                            HandCursor1_R.transform.position = Vector3.Lerp(HandCursor1_R.transform.position, gestureData.handScreenPos_R, 3 * Time.deltaTime);
+                            Vector3 viewportPos = Vector3.Lerp(HandCursor1_R.transform.position, gestureData.handScreenPos_R, 3 * Time.deltaTime);
+                            Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            HandTexture_R.transform.position = worldPos;
+
+                            HandCursor1_R.transform.position = viewportPos;
                         }
                     }
                     if ((gestureData.gesture == KinectGestures.Gestures.LeftHandCursor))
@@ -922,7 +930,11 @@ public class KinectManager : MonoBehaviour
                         // ここで手のカーソルを動かしている
                         if (HandCursor1_L != null)
                         {
-                            HandCursor1_L.transform.position = Vector3.Lerp(HandCursor1_L.transform.position, gestureData.handScreenPos_L, 3 * Time.deltaTime);
+                            Vector3 viewportPos = Vector3.Lerp(HandCursor1_L.transform.position, gestureData.handScreenPos_L, 3 * Time.deltaTime);
+                            Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            HandTexture_L.transform.position = worldPos;
+
+                            HandCursor1_L.transform.position = viewportPos;
                         }
                     }
                     //if (ControlMouseCursor)

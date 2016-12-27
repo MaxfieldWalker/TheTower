@@ -182,6 +182,7 @@ public class KinectGestures
         public float startTrackingAtTime;
     }
 
+    private const int headIndex = (int)KinectWrapper.SkeletonJoint.HEAD;
 
     private const int leftHandIndex = (int)KinectWrapper.SkeletonJoint.LEFT_HAND;
     private const int rightHandIndex = (int)KinectWrapper.SkeletonJoint.RIGHT_HAND;
@@ -288,14 +289,18 @@ public class KinectGestures
             Vector3 neckToHips = jointsPos[shoulderCenterIndex] - jointsPos[hipCenterIndex];
             // 右肩と左肩の位置の差を計算する
             Vector3 rightToLeft = jointsPos[rightShoulderIndex] - jointsPos[leftShoulderIndex];
+            // 頭と尻の位置の差を計算する
+            Vector3 headToHips = jointsPos[headIndex] - jointsPos[hipCenterIndex];
 
             gestureData.tagVector2.x = rightToLeft.x;
             gestureData.tagVector2.y = neckToHips.y;
+            gestureData.tagVector2.z = headToHips.z / 3.5f;
 
             if (gestureData.joint == rightHandIndex)
             {
                 gestureData.tagVector_R.x = jointsPos[rightShoulderIndex].x - gestureData.tagVector2.x / 2;
                 gestureData.tagVector_R.y = jointsPos[hipCenterIndex].y;
+                gestureData.tagVector_R.z = jointsPos[rightShoulderIndex].z;
             }
         }
 
@@ -305,6 +310,7 @@ public class KinectGestures
             // Mathf.Clamp01は0未満なら0，0以上1未満ならそのまま，1以上なら1が返る
             gestureData.handScreenPos_R.x = Mathf.Clamp01(relHandPos.x / gestureData.tagVector2.x);
             gestureData.handScreenPos_R.y = Mathf.Clamp01(relHandPos.y / gestureData.tagVector2.y);
+            gestureData.handScreenPos_R.z = Mathf.Clamp01(relHandPos.z / gestureData.tagVector2.z);
         }
     }
 
@@ -327,14 +333,18 @@ public class KinectGestures
             Vector3 neckToHips = jointsPos[shoulderCenterIndex] - jointsPos[hipCenterIndex];
             // 右肩と左肩の位置の差を計算する
             Vector3 rightToLeft = jointsPos[rightShoulderIndex] - jointsPos[leftShoulderIndex];
+            // 頭と尻の位置の差を計算する
+            Vector3 headToHips = jointsPos[headIndex] - jointsPos[hipCenterIndex];
 
             gestureData.tagVector2.x = rightToLeft.x;
             gestureData.tagVector2.y = neckToHips.y;
+            gestureData.tagVector2.z = headToHips.z / 3.5f;
 
             if (gestureData.joint == leftHandIndex)
             {
                 gestureData.tagVector_L.x = jointsPos[leftShoulderIndex].x - gestureData.tagVector2.x / 2;
                 gestureData.tagVector_L.y = jointsPos[hipCenterIndex].y;
+                gestureData.tagVector_L.z = jointsPos[leftShoulderIndex].z;
             }
         }
 
@@ -344,6 +354,7 @@ public class KinectGestures
             // Mathf.Clamp01は0未満なら0，0以上1未満ならそのまま，1以上なら1が返る
             gestureData.handScreenPos_L.x = Mathf.Clamp01(relHandPos.x / gestureData.tagVector2.x);
             gestureData.handScreenPos_L.y = Mathf.Clamp01(relHandPos.y / gestureData.tagVector2.y);
+            gestureData.handScreenPos_L.z = Mathf.Clamp01(relHandPos.z / gestureData.tagVector2.z);
         }
     }
 
