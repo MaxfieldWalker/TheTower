@@ -6,13 +6,20 @@
 using UnityEngine;
 using System.Runtime.InteropServices;
 
+/// <summary>
+/// This script can be used to control the system mouse - position of the mouse cursor and clicks
+/// </summary>
 public class MouseControl : MonoBehaviour
 {
+    // mouse_event: マウスクリックなどのマウス操作を発生させる
     // Import function mouse_event() from WinApi
     [DllImport("User32.dll")]
     private static extern void mouse_event(MouseFlags dwFlags, int dx, int dy, int dwData, System.UIntPtr dwExtraInfo);
 
-    // Flags needed to specify the mouse action 
+    /// <summary>
+    /// マウスアクションのフラグ
+    /// Flags needed to specify the mouse action
+    /// </summary>
     [System.Flags]
     private enum MouseFlags
     {
@@ -24,10 +31,14 @@ public class MouseControl : MonoBehaviour
         Absolute = 0x8000,
     }
 
-    public static int MouseXSpeedCoef = 45000; // Cursor rate in Х direction
-    public static int MouseYSpeedCoef = 45000; // Cursor rate in Y direction
+    // public static int MouseXSpeedCoef = 45000; // Cursor rate in Х direction
+    // public static int MouseYSpeedCoef = 45000; // Cursor rate in Y direction
 
-    // Public function to move the mouse cursor to the specified position
+    /// <summary>
+    /// マウスカーソルを移動させる
+    /// Public function to move the mouse cursor to the specified position
+    /// </summary>
+    /// <param name="screenCoordinates"></param>
     public static void MouseMove(Vector3 screenCoordinates)
     {
         Vector2 mouseCoords = new Vector2();
@@ -38,7 +49,10 @@ public class MouseControl : MonoBehaviour
         mouse_event(MouseFlags.Absolute | MouseFlags.Move, (int)mouseCoords.x, (int)mouseCoords.y, 0, System.UIntPtr.Zero);
     }
 
-    // Public function to emulate a mouse button click (left button)
+    /// <summary>
+    /// マウスをクリックさせる
+    /// Public function to emulate a mouse button click (left button)
+    /// </summary>
     public static void MouseClick()
     {
         mouse_event(MouseFlags.LeftDown, 0, 0, 0, System.UIntPtr.Zero);

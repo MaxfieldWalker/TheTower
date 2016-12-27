@@ -6,19 +6,35 @@ public class KinectGestures
 
     public interface IGestureListener
     {
-        // Invoked when a new user is detected and tracking starts
-        // Here you can start gesture detection with KinectManager.DetectGesture()
-        // 新規のユーザーが検知されトラッキングが開始された時に呼び出されます
-        // この時からKinectManager.DetectGesture()でジェスチャーの認識が可能になります
+        /// <summary>
+        /// 新規のユーザーが検知されトラッキングが開始された時に呼び出されます
+        /// この時からKinectManager.DetectGesture()でジェスチャーの認識が可能になります
+        /// Invoked when a new user is detected and tracking starts
+        /// Here you can start gesture detection with KinectManager.DetectGesture()
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userIndex"></param>
         void UserDetected(uint userId, int userIndex);
 
-        // Invoked when a user is lost
-        // Gestures for this user are cleared automatically, but you can free the used resources
-        // ユーザーがロストした時に呼び出されます
+        /// <summary>
+        /// ユーザーがロストした時に呼び出されます
+        /// Invoked when a user is lost
+        /// Gestures for this user are cleared automatically, but you can free the used resources
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userIndex"></param>
         void UserLost(uint userId, int userIndex);
 
-        // Invoked when a gesture is in progress
-        // ジェスチャーの途中で呼び出されます
+        /// <summary>
+        /// ジェスチャーの途中で呼び出されます
+        /// Invoked when a gesture is in progress
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userIndex"></param>
+        /// <param name="gesture"></param>
+        /// <param name="progress"></param>
+        /// <param name="joint"></param>
+        /// <param name="screenPos"></param>
         void GestureInProgress(
             uint userId,
             int userIndex,
@@ -27,10 +43,18 @@ public class KinectGestures
             KinectWrapper.SkeletonJoint joint,
             Vector3 screenPos);
 
-        // Invoked if a gesture is completed.
-        // Returns true, if the gesture detection must be restarted, false otherwise
-        // ジェスチャーが完了した時に呼び出されます
-        // ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        /// <summary>
+        /// ジェスチャーが完了した時に呼び出されます
+        /// ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        /// Invoked if a gesture is completed.
+        /// Returns true, if the gesture detection must be restarted, false otherwise
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userIndex"></param>
+        /// <param name="gesture"></param>
+        /// <param name="joint"></param>
+        /// <param name="screenPos"></param>
+        /// <returns></returns>
         bool GestureCompleted(
             uint userId,
             int userIndex,
@@ -38,10 +62,17 @@ public class KinectGestures
             KinectWrapper.SkeletonJoint joint,
             Vector3 screenPos);
 
-        // Invoked if a gesture is cancelled.
-        // Returns true, if the gesture detection must be retarted, false otherwise
-        // ジェスチャーが途中でキャンセルされた時に呼び出されます
-        // ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        /// <summary>
+        /// ジェスチャーが途中でキャンセルされた時に呼び出されます
+        /// ジェスチャー検知が再開される必要があるときはtrue，その他の場合はfalseを返します
+        /// Invoked if a gesture is cancelled.
+        /// Returns true, if the gesture detection must be retarted, false otherwise
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userIndex"></param>
+        /// <param name="gesture"></param>
+        /// <param name="joint"></param>
+        /// <returns></returns>
         bool GestureCancelled(
             uint userId,
             int userIndex,
@@ -80,29 +111,78 @@ public class KinectGestures
         Pull
     }
 
-
+    /// <summary>
+    /// ジェスチャーに関する情報を格納する
+    /// </summary>
     public struct GestureData
     {
         public uint userId;
         public Gestures gesture;
+
+        /// <summary>
+        /// ジェスチャーの状態遷移の状態番号
+        /// </summary>
         public int state;
+
+        /// <summary>
+        /// タイムスタンプ
+        /// </summary>
         public float timestamp;
+
         public int joint;
         public Vector3 jointPos;
-        public Vector3 screenPos;
+
+        /// <summary>
+        /// 肩と腰の4隅で出来る長方形を基準にした
+        /// 手の位置の座標。成分の範囲は0 ~ 1
+        /// </summary>
+        public Vector3 handScreenPos_R;
+        public Vector3 handScreenPos_L;
+
         public float tagFloat;
-        public Vector3 tagVector;
+
+        /// <summary>
+        /// screenPosの計算するのに使うベクトル
+        /// x成分には腰の中心から肩までのx成分の差
+        /// y成分には腰の中心のx成分が入る
+        /// </summary>
+        public Vector3 tagVector_R;
+
+        public Vector3 tagVector_L;
+
+
+        /// <summary>
+        /// screenPosの計算するのに使うベクトル
+        /// x成分には肩幅
+        /// y成分には肩と尻の距離が入る
+        /// </summary>
         public Vector3 tagVector2;
+
+        /// <summary>
+        /// プログレス(進捗)
+        /// </summary>
         public float progress;
+
+        /// <summary>
+        /// ジェスチャーが完了しているかのフラグ
+        /// </summary>
         public bool complete;
+
+        /// <summary>
+        /// ジェスチャーが失敗したかのフラグ
+        /// </summary>
         public bool cancelled;
+
+        /// <summary>
+        /// ??
+        /// </summary>
         public List<Gestures> checkForGestures;
+
+
         public float startTrackingAtTime;
     }
 
 
-
-    // Gesture related constants, variables and functions
     private const int leftHandIndex = (int)KinectWrapper.SkeletonJoint.LEFT_HAND;
     private const int rightHandIndex = (int)KinectWrapper.SkeletonJoint.RIGHT_HAND;
 
@@ -119,18 +199,27 @@ public class KinectGestures
 
 
     private static int[] neededJointIndexes = {
-        leftHandIndex, rightHandIndex, leftElbowIndex, rightElbowIndex, leftShoulderIndex, rightShoulderIndex,
-        hipCenterIndex, shoulderCenterIndex, leftHipIndex, rightHipIndex
+        leftHandIndex,
+        rightHandIndex,
+        leftElbowIndex,
+        rightElbowIndex,
+        leftShoulderIndex,
+        rightShoulderIndex,
+        hipCenterIndex,
+        shoulderCenterIndex,
+        leftHipIndex,
+        rightHipIndex
     };
 
 
-    // Returns the list of the needed gesture joint indexes
+    /// <summary>
+    /// Returns the list of the needed gesture joint indexes
+    /// </summary>
+    /// <returns></returns>
     public static int[] GetNeededJointIndexes()
     {
         return neededJointIndexes;
     }
-
-
 
     private static void SetGestureJoint(ref GestureData gestureData, float timestamp, int joint, Vector3 jointPos)
     {
@@ -147,14 +236,27 @@ public class KinectGestures
         gestureData.cancelled = true;
     }
 
-    private static void CheckPoseComplete(ref GestureData gestureData, float timestamp, Vector3 jointPos, bool isInPose, float durationToComplete)
+    /// <summary>
+    /// ポーズ(姿勢)が完了しているかチェックする
+    /// </summary>
+    /// <param name="gestureData"></param>
+    /// <param name="timestamp"></param>
+    /// <param name="jointPos"></param>
+    /// <param name="isInPose"></param>
+    /// <param name="durationToComplete">ポーズが完了とするまでの時間</param>
+    private static void CheckPoseComplete(
+        ref GestureData gestureData,
+        float timestamp,
+        Vector3 jointPos,
+        bool isInPose,
+        float durationToComplete)
     {
         if (isInPose)
         {
-            float timeLeft = timestamp - gestureData.timestamp;
-            gestureData.progress = durationToComplete > 0f ? Mathf.Clamp01(timeLeft / durationToComplete) : 1.0f;
+            float timeDelta = timestamp - gestureData.timestamp;
+            gestureData.progress = durationToComplete > 0f ? Mathf.Clamp01(timeDelta / durationToComplete) : 1.0f;
 
-            if (timeLeft >= durationToComplete)
+            if (timeDelta >= durationToComplete)
             {
                 gestureData.timestamp = timestamp;
                 gestureData.jointPos = jointPos;
@@ -168,75 +270,80 @@ public class KinectGestures
         }
     }
 
-    private static void SetScreenPos(uint userId, ref GestureData gestureData, ref Vector3[] jointsPos, ref bool[] jointsTracked)
+    private static void SetScreenPos_R(uint userId, ref GestureData gestureData, ref Vector3[] jointsPos, ref bool[] jointsTracked)
     {
+        // 右手の位置を取得する
         Vector3 handPos = jointsPos[rightHandIndex];
-        //		Vector3 elbowPos = jointsPos[rightElbowIndex];
-        //		Vector3 shoulderPos = jointsPos[rightShoulderIndex];
-        bool calculateCoords = false;
+        bool calculateCoords = gestureData.joint == rightHandIndex
+                            && jointsTracked[rightHandIndex];
 
-        if (gestureData.joint == rightHandIndex)
+        // 右手がトラッキングされていなければ意味がない
+        if (!calculateCoords) return;
+
+        // 尻の中央と肩の左右中央は全てトラッキングされているか??
+        if (jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex] &&
+            jointsTracked[leftShoulderIndex] && jointsTracked[rightShoulderIndex])
         {
-            if (jointsTracked[rightHandIndex] /**&& jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex]*/)
+            // 肩と尻の位置の差を計算する
+            Vector3 neckToHips = jointsPos[shoulderCenterIndex] - jointsPos[hipCenterIndex];
+            // 右肩と左肩の位置の差を計算する
+            Vector3 rightToLeft = jointsPos[rightShoulderIndex] - jointsPos[leftShoulderIndex];
+
+            gestureData.tagVector2.x = rightToLeft.x;
+            gestureData.tagVector2.y = neckToHips.y;
+
+            if (gestureData.joint == rightHandIndex)
             {
-                calculateCoords = true;
+                gestureData.tagVector_R.x = jointsPos[rightShoulderIndex].x - gestureData.tagVector2.x / 2;
+                gestureData.tagVector_R.y = jointsPos[hipCenterIndex].y;
             }
         }
-        else if (gestureData.joint == leftHandIndex)
-        {
-            if (jointsTracked[leftHandIndex] /**&& jointsTracked[leftElbowIndex] && jointsTracked[leftShoulderIndex]*/)
-            {
-                handPos = jointsPos[leftHandIndex];
-                //				elbowPos = jointsPos[leftElbowIndex];
-                //				shoulderPos = jointsPos[leftShoulderIndex];
 
-                calculateCoords = true;
+        if (gestureData.tagVector2.x != 0 && gestureData.tagVector2.y != 0)
+        {
+            Vector3 relHandPos = handPos - gestureData.tagVector_R;
+            // Mathf.Clamp01は0未満なら0，0以上1未満ならそのまま，1以上なら1が返る
+            gestureData.handScreenPos_R.x = Mathf.Clamp01(relHandPos.x / gestureData.tagVector2.x);
+            gestureData.handScreenPos_R.y = Mathf.Clamp01(relHandPos.y / gestureData.tagVector2.y);
+        }
+    }
+
+
+    private static void SetScreenPos_L(uint userId, ref GestureData gestureData, ref Vector3[] jointsPos, ref bool[] jointsTracked)
+    {
+        // 左手の位置を取得する
+        Vector3 handPos = jointsPos[leftHandIndex];
+        bool calculateCoords = gestureData.joint == leftHandIndex
+                            && jointsTracked[leftHandIndex];
+
+        // 左手がトラッキングされていなければ意味がない
+        if (!calculateCoords) return;
+
+        // 尻の中央と肩の左右中央は全てトラッキングされているか??
+        if (jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex] &&
+            jointsTracked[leftShoulderIndex] && jointsTracked[rightShoulderIndex])
+        {
+            // 肩と尻の位置の差を計算する
+            Vector3 neckToHips = jointsPos[shoulderCenterIndex] - jointsPos[hipCenterIndex];
+            // 右肩と左肩の位置の差を計算する
+            Vector3 rightToLeft = jointsPos[rightShoulderIndex] - jointsPos[leftShoulderIndex];
+
+            gestureData.tagVector2.x = rightToLeft.x;
+            gestureData.tagVector2.y = neckToHips.y;
+
+            if (gestureData.joint == leftHandIndex)
+            {
+                gestureData.tagVector_L.x = jointsPos[leftShoulderIndex].x - gestureData.tagVector2.x / 2;
+                gestureData.tagVector_L.y = jointsPos[hipCenterIndex].y;
             }
         }
 
-        if (calculateCoords)
+        if (gestureData.tagVector2.x != 0 && gestureData.tagVector2.y != 0)
         {
-            //			if(gestureData.tagFloat == 0f || gestureData.userId != userId)
-            //			{
-            //				// get length from shoulder to hand (screen range)
-            //				Vector3 shoulderToElbow = elbowPos - shoulderPos;
-            //				Vector3 elbowToHand = handPos - elbowPos;
-            //				gestureData.tagFloat = (shoulderToElbow.magnitude + elbowToHand.magnitude);
-            //			}
-
-            if (jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex] &&
-                jointsTracked[leftShoulderIndex] && jointsTracked[rightShoulderIndex])
-            {
-                Vector3 neckToHips = jointsPos[shoulderCenterIndex] - jointsPos[hipCenterIndex];
-                Vector3 rightToLeft = jointsPos[rightShoulderIndex] - jointsPos[leftShoulderIndex];
-
-                gestureData.tagVector2.x = rightToLeft.x; // * 1.2f;
-                gestureData.tagVector2.y = neckToHips.y; // * 1.2f;
-
-                if (gestureData.joint == rightHandIndex)
-                {
-                    gestureData.tagVector.x = jointsPos[rightShoulderIndex].x - gestureData.tagVector2.x / 2;
-                    gestureData.tagVector.y = jointsPos[hipCenterIndex].y;
-                }
-                else
-                {
-                    gestureData.tagVector.x = jointsPos[leftShoulderIndex].x - gestureData.tagVector2.x / 2;
-                    gestureData.tagVector.y = jointsPos[hipCenterIndex].y;
-                }
-            }
-
-            //			Vector3 shoulderToHand = handPos - shoulderPos;
-            //			gestureData.screenPos.x = Mathf.Clamp01((gestureData.tagFloat / 2 + shoulderToHand.x) / gestureData.tagFloat);
-            //			gestureData.screenPos.y = Mathf.Clamp01((gestureData.tagFloat / 2 + shoulderToHand.y) / gestureData.tagFloat);
-
-            if (gestureData.tagVector2.x != 0 && gestureData.tagVector2.y != 0)
-            {
-                Vector3 relHandPos = handPos - gestureData.tagVector;
-                gestureData.screenPos.x = Mathf.Clamp01(relHandPos.x / gestureData.tagVector2.x);
-                gestureData.screenPos.y = Mathf.Clamp01(relHandPos.y / gestureData.tagVector2.y);
-            }
-
-            //Debug.Log(string.Format("{0} - S: {1}, H: {2}, SH: {3}, L : {4}", gestureData.gesture, shoulderPos, handPos, shoulderToHand, gestureData.tagFloat));
+            Vector3 relHandPos = handPos - gestureData.tagVector_L;
+            // Mathf.Clamp01は0未満なら0，0以上1未満ならそのまま，1以上なら1が返る
+            gestureData.handScreenPos_L.x = Mathf.Clamp01(relHandPos.x / gestureData.tagVector2.x);
+            gestureData.handScreenPos_L.y = Mathf.Clamp01(relHandPos.y / gestureData.tagVector2.y);
         }
     }
 
@@ -250,13 +357,13 @@ public class KinectGestures
         }
 
         float distZooming = vectorZooming.magnitude;
-        gestureData.screenPos.z = initialZoom + (distZooming / gestureData.tagFloat);
+        gestureData.handScreenPos_R.z = initialZoom + (distZooming / gestureData.tagFloat);
     }
 
     private static void SetWheelRotation(uint userId, ref GestureData gestureData, Vector3 initialPos, Vector3 currentPos)
     {
         float angle = Vector3.Angle(initialPos, currentPos) * Mathf.Sign(currentPos.y - initialPos.y);
-        gestureData.screenPos.z = angle;
+        gestureData.handScreenPos_R.z = angle;
     }
 
     // estimate the next state and completeness of the gesture
@@ -485,7 +592,7 @@ public class KinectGestures
                             gestureData.progress = 0.3f;
 
                             // set screen position at the start, because this is the most accurate click position
-                            SetScreenPos(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+                            SetScreenPos_R(userId, ref gestureData, ref jointsPos, ref jointsTracked);
                         }
                         else if (jointsTracked[leftHandIndex] && jointsTracked[leftElbowIndex] &&
                                 (jointsPos[leftHandIndex].y - jointsPos[leftElbowIndex].y) > -0.1f)
@@ -494,41 +601,11 @@ public class KinectGestures
                             gestureData.progress = 0.3f;
 
                             // set screen position at the start, because this is the most accurate click position
-                            SetScreenPos(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+                            SetScreenPos_R(userId, ref gestureData, ref jointsPos, ref jointsTracked);
                         }
                         break;
 
                     case 1:  // gesture - phase 2
-                             //						if((timestamp - gestureData.timestamp) < 1.0f)
-                             //						{
-                             //							bool isInPose = gestureData.joint == rightHandIndex ?
-                             //								jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] &&
-                             //								//(jointsPos[rightHandIndex].y - jointsPos[rightElbowIndex].y) > -0.1f && 
-                             //								Mathf.Abs(jointsPos[rightHandIndex].x - gestureData.jointPos.x) < 0.08f &&
-                             //								(jointsPos[rightHandIndex].z - gestureData.jointPos.z) < -0.05f :
-                             //								jointsTracked[leftHandIndex] && jointsTracked[leftElbowIndex] &&
-                             //								//(jointsPos[leftHandIndex].y - jointsPos[leftElbowIndex].y) > -0.1f &&
-                             //								Mathf.Abs(jointsPos[leftHandIndex].x - gestureData.jointPos.x) < 0.08f &&
-                             //								(jointsPos[leftHandIndex].z - gestureData.jointPos.z) < -0.05f;
-                             //				
-                             //							if(isInPose)
-                             //							{
-                             //								gestureData.timestamp = timestamp;
-                             //								gestureData.jointPos = jointsPos[gestureData.joint];
-                             //								gestureData.state++;
-                             //								gestureData.progress = 0.7f;
-                             //							}
-                             //							else
-                             //							{
-                             //								// check for stay-in-place
-                             //								Vector3 distVector = jointsPos[gestureData.joint] - gestureData.jointPos;
-                             //								isInPose = distVector.magnitude < 0.05f;
-                             //
-                             //								Vector3 jointPos = jointsPos[gestureData.joint];
-                             //								CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, Constants.ClickStayDuration);
-                             //							}
-                             //						}
-                             //						else
                         {
                             // check for stay-in-place
                             Vector3 distVector = jointsPos[gestureData.joint] - gestureData.jointPos;
@@ -536,35 +613,8 @@ public class KinectGestures
 
                             Vector3 jointPos = jointsPos[gestureData.joint];
                             CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectWrapper.Constants.ClickStayDuration);
-                            //							SetGestureCancelled(gestureData);
                         }
                         break;
-
-                        //					case 2:  // gesture phase 3 = complete
-                        //						if((timestamp - gestureData.timestamp) < 1.0f)
-                        //						{
-                        //							bool isInPose = gestureData.joint == rightHandIndex ?
-                        //								jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] &&
-                        //								//(jointsPos[rightHandIndex].y - jointsPos[rightElbowIndex].y) > -0.1f && 
-                        //								Mathf.Abs(jointsPos[rightHandIndex].x - gestureData.jointPos.x) < 0.08f &&
-                        //								(jointsPos[rightHandIndex].z - gestureData.jointPos.z) > 0.05f :
-                        //								jointsTracked[leftHandIndex] && jointsTracked[leftElbowIndex] &&
-                        //								//(jointsPos[leftHandIndex].y - jointsPos[leftElbowIndex].y) > -0.1f &&
-                        //								Mathf.Abs(jointsPos[leftHandIndex].x - gestureData.jointPos.x) < 0.08f &&
-                        //								(jointsPos[leftHandIndex].z - gestureData.jointPos.z) > 0.05f;
-                        //
-                        //							if(isInPose)
-                        //							{
-                        //								Vector3 jointPos = jointsPos[gestureData.joint];
-                        //								CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, 0f);
-                        //							}
-                        //						}
-                        //						else
-                        //						{
-                        //							// cancel the gesture
-                        //							SetGestureCancelled(ref gestureData);
-                        //						}
-                        //						break;
                 }
                 break;
 
@@ -580,14 +630,6 @@ public class KinectGestures
                             SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
                             gestureData.progress = 0.5f;
                         }
-                        //						else if(jointsTracked[leftHandIndex] && jointsTracked[leftElbowIndex] &&
-                        //					            (jointsPos[leftHandIndex].y - jointsPos[leftElbowIndex].y) > -0.05f &&
-                        //					            (jointsPos[leftHandIndex].x - jointsPos[leftElbowIndex].x) > 0f)
-                        //						{
-                        //							SetGestureJoint(ref gestureData, timestamp, leftHandIndex, jointsPos[leftHandIndex]);
-                        //							//gestureData.jointPos = jointsPos[leftHandIndex];
-                        //							gestureData.progress = 0.5f;
-                        //						}
                         break;
 
                     case 1:  // gesture phase 2 = complete
@@ -623,15 +665,6 @@ public class KinectGestures
                 switch (gestureData.state)
                 {
                     case 0:  // gesture detection - phase 1
-                             //						if(jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] &&
-                             //					       (jointsPos[rightHandIndex].y - jointsPos[rightElbowIndex].y) > -0.05f &&
-                             //					       (jointsPos[rightHandIndex].x - jointsPos[rightElbowIndex].x) < 0f)
-                             //						{
-                             //							SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
-                             //							//gestureData.jointPos = jointsPos[rightHandIndex];
-                             //							gestureData.progress = 0.5f;
-                             //						}
-                             //						else 
                         if (jointsTracked[leftHandIndex] && jointsTracked[leftElbowIndex] &&
                                 (jointsPos[leftHandIndex].y - jointsPos[leftElbowIndex].y) > -0.05f &&
                                 (jointsPos[leftHandIndex].x - jointsPos[leftElbowIndex].x) < 0f)
@@ -777,14 +810,12 @@ public class KinectGestures
                         {
                             gestureData.joint = rightHandIndex;
                             gestureData.timestamp = timestamp;
-                            //gestureData.jointPos = jointsPos[rightHandIndex];
-                            SetScreenPos(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+                            SetScreenPos_R(userId, ref gestureData, ref jointsPos, ref jointsTracked);
                             gestureData.progress = 0.7f;
                         }
                         else
                         {
                             // cancel the gesture
-                            //SetGestureCancelled(ref gestureData);
                             gestureData.progress = 0f;
                         }
                         break;
@@ -802,18 +833,15 @@ public class KinectGestures
                         {
                             gestureData.joint = leftHandIndex;
                             gestureData.timestamp = timestamp;
-                            //gestureData.jointPos = jointsPos[leftHandIndex];
-                            SetScreenPos(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+                            SetScreenPos_L(userId, ref gestureData, ref jointsPos, ref jointsTracked);
                             gestureData.progress = 0.7f;
                         }
                         else
                         {
                             // cancel the gesture
-                            //SetGestureCancelled(ref gestureData);
                             gestureData.progress = 0f;
                         }
                         break;
-
                 }
                 break;
 
@@ -917,7 +945,7 @@ public class KinectGestures
                            distWheel > 0.2f && distWheel < 0.7f)
                         {
                             SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
-                            gestureData.tagVector = vectorWheel;
+                            gestureData.tagVector_R = vectorWheel;
                             gestureData.tagFloat = distWheel;
                             gestureData.progress = 0.3f;
                         }
@@ -934,7 +962,7 @@ public class KinectGestures
 
                             if (isInPose)
                             {
-                                SetWheelRotation(userId, ref gestureData, gestureData.tagVector, vectorWheel);
+                                SetWheelRotation(userId, ref gestureData, gestureData.tagVector_R, vectorWheel);
                                 gestureData.timestamp = timestamp;
                                 gestureData.tagFloat = distWheel;
                                 gestureData.progress = 0.7f;

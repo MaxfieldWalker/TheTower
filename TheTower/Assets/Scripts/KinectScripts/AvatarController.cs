@@ -2,54 +2,46 @@
 
 public class AvatarController : MonoBehaviour
 {
-    // Bool that has the characters (facing the player) actions become mirrored. Default false.
     // 鏡に映したようにマッピングを反転させるか? (ユーザーの右手がキャラクターの左手にマッピングされる)
+    // Bool that has the characters (facing the player) actions become mirrored. Default false.
     public bool MirroredMovement = false;
 
+    // ジャンプのような縦方向の動きを許可するか
     // Bool that determines whether the avatar is allowed to jump -- vertical movement
     // can cause some models to behave strangely, so use at your own discretion.
     public bool VerticalMovement = false;
 
+    // アバターの動きの度合いを調整する
     // Rate at which avatar will move through the scene. The rate multiplies the movement speed (.001f, i.e dividing by 1000, unity's framerate).
     private int MoveRate = 1;
 
-    // Slerp smooth factor
-    public float SmoothFactor = 5f;
-
-    // Public variables that will get matched to bones. If empty, the kinect will simply not track it.
-    // These bones can be set within the Unity interface.
     public Transform Hips;
-    //public Transform Spine;
     public Transform Neck;
     public Transform Head;
 
-    //public Transform LeftShoulder;
     public Transform LeftUpperArm;
     public Transform LeftElbow;
-    //public Transform LeftWrist;
     public Transform LeftHand;
-    //public Transform LeftFingers;
 
-    //public Transform RightShoulder;
     public Transform RightUpperArm;
     public Transform RightElbow;
-    //public Transform RightWrist;
     public Transform RightHand;
-    //public Transform RightFingers;
 
     public Transform LeftThigh;
     public Transform LeftKnee;
     public Transform LeftFoot;
-    //public Transform LeftToes;
 
     public Transform RightThigh;
     public Transform RightKnee;
     public Transform RightFoot;
-    //public Transform RightToes;
 
+    // キャラクターのジョイントのルート?
     public Transform Root;
 
-    // A required variable if you want to rotate the model in space.
+    /// <summary>
+    /// キャラクターの基準になるオブジェクト
+    /// A required variable if you want to rotate the model in space.
+    /// </summary>
     public GameObject offsetNode;
 
     // Variable to hold all them bones. It will initialize the same size as initialRotations.
@@ -63,64 +55,61 @@ public class AvatarController : MonoBehaviour
     float XOffset, YOffset, ZOffset;
     Quaternion originalRotation;
 
-
     public void Start()
     {
-        // Holds our bones for later.
-        bones = new Transform[(int)KinectWrapper.SkeletonJoint.COUNT];
+        bones = new Transform[15];
 
-        // Initial rotations of said bones.
-        initialRotations = new Quaternion[bones.Length];
-
-        // Map bones to the points the Kinect tracks.
+        //体の各部位をbones配列に格納する
         MapBones();
 
-        // Get initial rotations to return to later.
-        GetInitialRotations();
+        initialRotations = new Quaternion[15];
 
-        // Set the model to the calibration pose.
+        // 回転の初期値を保持しておく
+        CaptureInitialRotations();
+
+        // キャラクターをキャリブレーションポーズにする
         RotateToCalibrationPose(0, KinectManager.IsCalibrationNeeded());
     }
 
-    // Update the avatar each frame.
+    /// <summary>
+    /// アバターのジョイントの位置や回転を更新する
+    /// Update the avatar each frame.
+    /// </summary>
+    /// <param name="UserID"></param>
+    /// <param name="IsNearMode"></param>
     public void UpdateAvatar(uint UserID, bool IsNearMode)
     {
         TransformBone(UserID, KinectWrapper.SkeletonJoint.HIPS, MirroredMovement);
-        //TransformBone(UserID, KinectWrapper.SkeletonJoint.SPINE, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.NECK, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.HEAD, MirroredMovement);
 
         TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_SHOULDER, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_ELBOW, MirroredMovement);
-        //TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_WRIST, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_HAND, MirroredMovement);
 
         TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_SHOULDER, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_ELBOW, MirroredMovement);
-        //TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_WRIST, MirroredMovement);
         TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_HAND, MirroredMovement);
 
         if (!IsNearMode)
         {
             TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_HIP, MirroredMovement);
             TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_KNEE, MirroredMovement);
-            //TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_ANKLE, MirroredMovement);
             TransformBone(UserID, KinectWrapper.SkeletonJoint.LEFT_FOOT, MirroredMovement);
 
             TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_HIP, MirroredMovement);
             TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_KNEE, MirroredMovement);
-            //TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_ANKLE, MirroredMovement);
             TransformBone(UserID, KinectWrapper.SkeletonJoint.RIGHT_FOOT, MirroredMovement);
         }
 
-        // If the avatar is supposed to move in the space, move it.
-        //if (MovesInSpace)
-        {
-            MoveAvatar(UserID);
-        }
+        MoveAvatar(UserID);
     }
 
-    // Calibration pose is simply initial position with hands raised up. Rotation must be 0,0,0 to calibrate.
+    /// <summary>
+    /// 回転を0,0,0にしてキャリブレーションポーズにする
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="needCalibration"></param>
     public void RotateToCalibrationPose(uint userId, bool needCalibration)
     {
         // Reset the rest of the model to the original position.
@@ -134,16 +123,6 @@ public class AvatarController : MonoBehaviour
                 offsetNode.transform.rotation = Quaternion.Euler(Vector3.zero);
             }
 
-            //			// Right Elbow
-            //			if(RightElbow != null)
-            //	        	RightElbow.rotation = Quaternion.Euler(0, -90, 90) * 
-            //					initialRotations[(int)KinectWrapper.SkeletonJoint.RIGHT_ELBOW];
-            //			
-            //			// Left Elbow
-            //			if(LeftElbow != null)
-            //	        	LeftElbow.rotation = Quaternion.Euler(0, 90, -90) * 
-            //					initialRotations[(int)KinectWrapper.SkeletonJoint.LEFT_ELBOW];
-
             if (offsetNode != null)
             {
                 // Restore the offset's rotation
@@ -153,6 +132,10 @@ public class AvatarController : MonoBehaviour
     }
 
     // Invoked on the successful calibration of a player.
+    /// <summary>
+    /// プレイヤーのキャリブレーションに成功した時に呼ばれます
+    /// </summary>
+    /// <param name="userId"></param>
     public void SuccessfulCalibration(uint userId)
     {
         // reset the models position
@@ -165,7 +148,12 @@ public class AvatarController : MonoBehaviour
         OffsetCalibrated = false;
     }
 
-    // Returns the correct bone index, depending on the mirroring
+    /// <summary>
+    /// ジョイントに対応する番号を返します
+    /// </summary>
+    /// <param name="joint"></param>
+    /// <param name="isMirrored"></param>
+    /// <returns></returns>
     int GetJointIndex(KinectWrapper.SkeletonJoint joint, bool isMirrored)
     {
         if (isMirrored)
@@ -202,32 +190,35 @@ public class AvatarController : MonoBehaviour
         return (int)joint;
     }
 
-    // Apply the rotations tracked by kinect to the joints.
+    /// <summary>
+    /// Kinectが取得した情報をジョイントに適用する
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="joint"></param>
+    /// <param name="isMirrored"></param>
     void TransformBone(uint userId, KinectWrapper.SkeletonJoint joint, bool isMirrored)
     {
         int boneIndex = GetJointIndex(joint, isMirrored);
-        if (boneIndex < 0)
-            return;
+        if (boneIndex < 0) return;
 
         Transform boneTransform = bones[boneIndex];
-        if (boneTransform == null)
-            return;
+        if (boneTransform == null) return;
 
         // Grab the bone we're moving.
-        int iJoint = (int)joint;
-        if (iJoint < 0)
-            return;
+        int jointIndex = (int)joint;
+        if (jointIndex < 0) return;
 
-        // Get Kinect joint orientation
-        Quaternion jointRotation = KinectManager.Instance.GetJointOrientation(userId, iJoint, !isMirrored);
-        if (jointRotation == Quaternion.identity)
-            return;
+        // Kinectからジョイントの回転を取得する
+        Quaternion jointRotation = KinectManager.Instance.GetJointOrientation(userId, jointIndex, !isMirrored);
+        if (jointRotation == Quaternion.identity) return;
 
         // Apply the new rotation.
         Quaternion newRotation = jointRotation * initialRotations[boneIndex];
 
         //If an offset node is specified, combine the transform with its
         //orientation to essentially make the skeleton relative to the node
+        // OffsetNoteが指定されている場合はOffsetNoteのtransfromを組み合わせて
+        // 相対化する
         if (offsetNode != null)
         {
             // Grab the total rotation by adding the Euler and offset's Euler.
@@ -237,101 +228,78 @@ public class AvatarController : MonoBehaviour
         }
 
         // Smoothly transition to our new rotation.
-        boneTransform.rotation = Quaternion.Slerp(boneTransform.rotation, newRotation, Time.deltaTime * SmoothFactor);
+        boneTransform.rotation = Quaternion.Slerp(boneTransform.rotation, newRotation, Time.deltaTime * 3.0f);
     }
 
-    // Moves the avatar in 3D space - pulls the tracked position of the spine and applies it to root.
-    // Only pulls positional, not rotational.
+    /// <summary>
+    /// アバターを移動させる (位置のみ)
+    /// Moves the avatar in 3D space - pulls the tracked position of the spine and applies it to root.
+    /// </summary>
+    /// <param name="UserID"></param>
     void MoveAvatar(uint UserID)
     {
-        if (Root == null)
-            return;
-        if (!KinectManager.Instance.IsJointPositionTracked(UserID, (int)KinectWrapper.SkeletonJoint.HIPS))
-            return;
+        if (Root == null) return;
+
+        // 尻はトラッキングされているか? 尻がトラッキングされていないと意味がない
+        if (!KinectManager.Instance.IsJointPositionTracked(UserID, (int)KinectWrapper.SkeletonJoint.HIPS)) return;
 
         // Get the position of the body and store it.
-        Vector3 trans = KinectManager.Instance.GetUserPosition(UserID);
+        Vector3 userPosition = KinectManager.Instance.GetUserPosition(UserID);
 
         // If this is the first time we're moving the avatar, set the offset. Otherwise ignore it.
+        // 初回だけ座標を相対化するためにx, y, z座標のオフセットを計算しておく
         if (!OffsetCalibrated)
         {
             OffsetCalibrated = true;
 
-            XOffset = !MirroredMovement ? trans.x * MoveRate : -trans.x * MoveRate;
-            YOffset = trans.y * MoveRate;
-            ZOffset = -trans.z * MoveRate;
+            XOffset = !MirroredMovement ? userPosition.x * MoveRate : -userPosition.x * MoveRate;
+            YOffset = userPosition.y * MoveRate;
+            ZOffset = -userPosition.z * MoveRate;
         }
 
-        float xPos;
-        float yPos;
-        float zPos;
+        float xPos, yPos, zPos;
 
         // If movement is mirrored, reverse it.
-        if (!MirroredMovement)
-            xPos = trans.x * MoveRate - XOffset;
-        else
-            xPos = -trans.x * MoveRate - XOffset;
-
-        yPos = trans.y * MoveRate - YOffset;
-        zPos = -trans.z * MoveRate - ZOffset;
+        xPos = (MirroredMovement ? -userPosition.x : userPosition.x) * MoveRate - XOffset;
+        yPos = userPosition.y * MoveRate - YOffset;
+        zPos = -userPosition.z * MoveRate - ZOffset;
 
         // If we are tracking vertical movement, update the y. Otherwise leave it alone.
-        Vector3 targetPos = new Vector3(xPos, VerticalMovement ? yPos : 0f, zPos);
-        Root.localPosition = Vector3.Lerp(Root.localPosition, targetPos, 3 * Time.deltaTime);
+        Vector3 targetPosition = new Vector3(xPos, (VerticalMovement ? yPos : 0.0f), zPos);
+
+        Root.localPosition = Vector3.Lerp(Root.localPosition, targetPosition, 3 * Time.deltaTime);
     }
 
-    // If the bones to be mapped have been declared, map that bone to the model.
+    /// <summary>
+    /// 体の各部位をbones配列に格納する
+    /// </summary>
     void MapBones()
     {
-        // If they're not empty, pull in the values from Unity and assign them to the array.
-        if (Hips != null && (int)KinectWrapper.SkeletonJoint.HIPS >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.HIPS] = Hips;
-        //		if(Spine != null && (int)KinectWrapper.SkeletonJoint.SPINE >= 0)
-        //			bones[(int)KinectWrapper.SkeletonJoint.SPINE] = Spine;
-        if (Neck != null && (int)KinectWrapper.SkeletonJoint.NECK >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.NECK] = Neck;
-        if (Head != null && (int)KinectWrapper.SkeletonJoint.HEAD >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.HEAD] = Head;
+        bones[(int)KinectWrapper.SkeletonJoint.HIPS] = Hips;
+        bones[(int)KinectWrapper.SkeletonJoint.NECK] = Neck;
+        bones[(int)KinectWrapper.SkeletonJoint.HEAD] = Head;
 
-        if (LeftUpperArm != null && (int)KinectWrapper.SkeletonJoint.LEFT_SHOULDER >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_SHOULDER] = LeftUpperArm;
-        if (LeftElbow != null && (int)KinectWrapper.SkeletonJoint.LEFT_ELBOW >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_ELBOW] = LeftElbow;
-        //		if(LeftWrist != null && (int)KinectWrapper.SkeletonJoint.LEFT_WRIST >= 0)
-        //			bones[(int)KinectWrapper.SkeletonJoint.LEFT_WRIST] = LeftWrist;
-        if (LeftHand != null && (int)KinectWrapper.SkeletonJoint.LEFT_HAND >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_HAND] = LeftHand;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_SHOULDER] = LeftUpperArm;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_ELBOW] = LeftElbow;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_HAND] = LeftHand;
 
-        if (RightUpperArm != null && (int)KinectWrapper.SkeletonJoint.RIGHT_SHOULDER >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_SHOULDER] = RightUpperArm;
-        if (RightElbow != null && (int)KinectWrapper.SkeletonJoint.RIGHT_ELBOW >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_ELBOW] = RightElbow;
-        //		if(RightWrist != null && (int)KinectWrapper.SkeletonJoint.RIGHT_WRIST >= 0)
-        //			bones[(int)KinectWrapper.SkeletonJoint.RIGHT_WRIST] = RightWrist;
-        if (RightHand != null && (int)KinectWrapper.SkeletonJoint.RIGHT_HAND >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_HAND] = RightHand;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_SHOULDER] = RightUpperArm;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_ELBOW] = RightElbow;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_HAND] = RightHand;
 
-        if (LeftThigh != null && (int)KinectWrapper.SkeletonJoint.LEFT_HIP >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_HIP] = LeftThigh;
-        if (LeftKnee != null && (int)KinectWrapper.SkeletonJoint.LEFT_KNEE >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_KNEE] = LeftKnee;
-        //		if(LeftFoot != null && (int)KinectWrapper.SkeletonJoint.LEFT_ANKLE >= 0)
-        //			bones[(int)KinectWrapper.SkeletonJoint.LEFT_ANKLE] = LeftFoot;
-        if (LeftFoot != null && (int)KinectWrapper.SkeletonJoint.LEFT_FOOT >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.LEFT_FOOT] = LeftFoot;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_HIP] = LeftThigh;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_KNEE] = LeftKnee;
+        bones[(int)KinectWrapper.SkeletonJoint.LEFT_FOOT] = LeftFoot;
 
-        if (RightThigh != null && (int)KinectWrapper.SkeletonJoint.RIGHT_HIP >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_HIP] = RightThigh;
-        if (RightKnee != null && (int)KinectWrapper.SkeletonJoint.RIGHT_KNEE >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_KNEE] = RightKnee;
-        //		if(RightFoot != null && (int)KinectWrapper.SkeletonJoint.RIGHT_ANKLE >= 0)
-        //			bones[(int)KinectWrapper.SkeletonJoint.RIGHT_ANKLE] = RightFoot;
-        if (RightFoot != null && (int)KinectWrapper.SkeletonJoint.RIGHT_FOOT >= 0)
-            bones[(int)KinectWrapper.SkeletonJoint.RIGHT_FOOT] = RightFoot;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_HIP] = RightThigh;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_KNEE] = RightKnee;
+        bones[(int)KinectWrapper.SkeletonJoint.RIGHT_FOOT] = RightFoot;
     }
 
-    // Capture the initial rotations of the model.
-    void GetInitialRotations()
+    /// <summary>
+    /// キャラクターの初期回転を保持する
+    /// </summary>
+    void CaptureInitialRotations()
     {
         if (offsetNode != null)
         {
@@ -342,12 +310,7 @@ public class AvatarController : MonoBehaviour
         }
 
         for (int i = 0; i < bones.Length; i++)
-        {
-            if (bones[i] != null)
-            {
-                initialRotations[i] = bones[i].rotation;
-            }
-        }
+            initialRotations[i] = bones[i].rotation;
 
         if (offsetNode != null)
         {
@@ -356,11 +319,12 @@ public class AvatarController : MonoBehaviour
         }
     }
 
-    // Set bones to initial position.
+    /// <summary>
+    /// ジョイントの回転を初期値に戻す
+    /// </summary>
     public void RotateToInitialPosition()
     {
-        if (bones == null)
-            return;
+        if (bones == null) return;
 
         if (offsetNode != null)
         {
@@ -368,7 +332,6 @@ public class AvatarController : MonoBehaviour
             offsetNode.transform.rotation = Quaternion.Euler(Vector3.zero);
         }
 
-        // For each bone that was defined, reset to initial position.
         for (int i = 0; i < bones.Length; i++)
         {
             if (bones[i] != null)
@@ -384,9 +347,7 @@ public class AvatarController : MonoBehaviour
 
         if (offsetNode != null)
         {
-            // Restore the offset's rotation
             offsetNode.transform.rotation = originalRotation;
         }
     }
-
 }
