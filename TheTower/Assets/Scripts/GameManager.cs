@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public Camera mainCamera;
     public Camera fpsCamera;
     public Text countdownText;
+    public Timer timer;
 
     private float time = 5.0f;
     private float elapsed = 0.0f;
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviour
         {
             useMainCamera();
         }
-        else if(Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             useFPSCamera();
         }
@@ -38,6 +39,7 @@ public class GameManager : MonoBehaviour
 
     public void gotoGameOverState()
     {
+        this.timer.pauseTimer();
         this.player.SendMessage("gotoGameOverState");
         this.mainCamera.SendMessage("activateBlurWithAnim");
         this.GameOverUI.SetActive(true);
@@ -78,6 +80,9 @@ public class GameManager : MonoBehaviour
         this.mainCamera.SendMessage("activateBlurWithAnim");
         this.GameState = GameStates.BeforeGame;
         this.GameOverUI.SetActive(false);
+        this.timer.pauseTimer();
+        this.timer.resetTimer();
+        this.timer.hide();
         StartCoroutine(countdownCoroutine());
     }
 
@@ -94,6 +99,8 @@ public class GameManager : MonoBehaviour
         this.countdownText.text = "GO!";
         this.mainCamera.SendMessage("deactivateBlurWithAnim");
         this.GameState = GameStates.Game;
+        this.timer.show();
+        this.timer.resumeTimer();
 
         yield return new WaitForSeconds(0.5f);
         this.countdownText.gameObject.SetActive(false);
