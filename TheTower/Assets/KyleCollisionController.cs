@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Assets.Scripts;
 using UnityEngine;
 
 public class KyleCollisionController : MonoBehaviour {
+    public GameObject RootObj;
+    private Kyle kyle;
 
 	// Use this for initialization
 	void Start () {
-		
+        this.kyle = this.RootObj.GetComponent<Kyle>();
 	}
 	
 	// Update is called once per frame
@@ -17,22 +17,11 @@ public class KyleCollisionController : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("trigger" + DateTime.Now.ToString());
-
+        this.kyle.delegateOnTriggerEnter(this.gameObject, other);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("trigger exit" + DateTime.Now.ToString());
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("collide" + DateTime.Now.ToString());
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        Debug.Log("collide exit" + DateTime.Now.ToString());
+        this.kyle.delegateOnTriggerExit(this.gameObject, other);
     }
 }
