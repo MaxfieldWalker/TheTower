@@ -210,6 +210,7 @@ public class AvatarController : MonoBehaviour
 
         // Kinectからジョイントの回転を取得する
         Quaternion jointRotation = KinectManager.Instance.GetJointOrientation(userId, jointIndex, !isMirrored);
+        // Debug.Log(jointRotation);
         if (jointRotation == Quaternion.identity) return;
 
         // Apply the new rotation.
@@ -229,6 +230,7 @@ public class AvatarController : MonoBehaviour
 
         // Smoothly transition to our new rotation.
         boneToTransform.rotation = Quaternion.Slerp(boneToTransform.rotation, newRotation, Time.deltaTime * 3.0f);
+        Debug.Log("Rotate! " + boneToTransform.name);
     }
 
     /// <summary>
