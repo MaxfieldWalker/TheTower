@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
+    public GameManager gameManager;
+
     private Rigidbody rigidBody;
     private const float ForceAmount = 10.0f;
     private Vector3 initialPosition;
@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (this.gameManager.GameState != GameManager.GameStates.Game) return;
+
         // WASDでプレイヤーを操作する
         if (Input.GetKey(KeyCode.W))
         {

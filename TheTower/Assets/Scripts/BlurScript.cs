@@ -46,13 +46,15 @@ public class BlurScript : MonoBehaviour
         }
     }
 
-    public void activateBlur()
+
+
+    public void activateBlurWithAnim()
     {
         this.blurEffect.enabled = true;
         changeBlurAmoutTo(10);
     }
 
-    public void deactivateBlur()
+    public void deactivateBlurWithAnim()
     {
         changeBlurAmoutTo(0);
     }

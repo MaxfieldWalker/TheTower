@@ -1,12 +1,17 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameStates GameState;
+
     public GameObject GameOverUI;
     public GameObject player;
     public Camera mainCamera;
     public Camera fpsCamera;
+    public Text countdownText;
 
     private float time = 5.0f;
     private float elapsed = 0.0f;
@@ -15,7 +20,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         useMainCamera();
-        this.GameOverUI.SetActive(false);
+        getReady();
     }
 
     // Update is called once per frame
@@ -34,15 +39,14 @@ public class GameManager : MonoBehaviour
     public void gotoGameOverState()
     {
         this.player.SendMessage("gotoGameOverState");
-        this.mainCamera.SendMessage("activateBlur");
+        this.mainCamera.SendMessage("activateBlurWithAnim");
         this.GameOverUI.SetActive(true);
     }
 
     private void gotoGameState()
     {
         this.player.SendMessage("respawn");
-        this.mainCamera.SendMessage("deactivateBlur");
-        this.GameOverUI.SetActive(false);
+        getReady();
     }
 
     public void onBackToTitlePageClick()
@@ -68,4 +72,39 @@ public class GameManager : MonoBehaviour
         this.mainCamera.gameObject.SetActive(false);
         this.fpsCamera.gameObject.SetActive(true);
     }
+
+    private void getReady()
+    {
+        this.mainCamera.SendMessage("activateBlurWithAnim");
+        this.GameState = GameStates.BeforeGame;
+        this.GameOverUI.SetActive(false);
+        StartCoroutine(countdownCoroutine());
+    }
+
+    IEnumerator countdownCoroutine()
+    {
+        this.countdownText.gameObject.SetActive(true);
+        this.countdownText.text = "3";
+        yield return new WaitForSeconds(1.0f);
+        this.countdownText.text = "2";
+        yield return new WaitForSeconds(1.0f);
+        this.countdownText.text = "1";
+        yield return new WaitForSeconds(1.0f);
+
+        this.countdownText.text = "GO!";
+        this.mainCamera.SendMessage("deactivateBlurWithAnim");
+        this.GameState = GameStates.Game;
+
+        yield return new WaitForSeconds(0.5f);
+        this.countdownText.gameObject.SetActive(false);
+    }
+
+    public enum GameStates
+    {
+        BeforeGame,
+        Game,
+        GameOver,
+        GameClear
+    }
 }
+
