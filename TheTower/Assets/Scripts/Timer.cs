@@ -44,6 +44,8 @@ public class Timer : MonoBehaviour
 
     public void hide()
     {
+        if (this.text == null) return;
+
         this.text.text = "";
     }
 
@@ -54,12 +56,24 @@ public class Timer : MonoBehaviour
 
     private void updateView()
     {
+        if (this.text == null) return;
+
         // 経過時間を表示する
-        this.text.text = currentTime().ToString(@"m\'ss.fff");
+        this.text.text = currentTimeAsString();
     }
 
     public DateTime currentTime()
     {
-        return new DateTime(0).Add(TimeSpan.FromSeconds(countTime));
+        return new DateTime(0).Add(currentTimeSpan());
+    }
+
+    public TimeSpan currentTimeSpan()
+    {
+        return TimeSpan.FromSeconds(countTime);
+    }
+
+    public string currentTimeAsString()
+    {
+        return currentTime().ToString(@"m\'ss.fff");
     }
 }

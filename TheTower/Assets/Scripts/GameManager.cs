@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,25 +9,30 @@ public class GameManager : MonoBehaviour
     public GameStates GameState;
 
     public GameObject GameOverUI;
+    public GameObject GameClearUI;
     public GameObject player;
     public Camera mainCamera;
     public Camera fpsCamera;
     public Text countdownText;
     public Timer timer;
+    public Animator gameClearUIAnimator;
 
-    private float time = 5.0f;
-    private float elapsed = 0.0f;
+    private bool gettingReady = false;
 
     // Use this for initialization
     void Start()
     {
         useMainCamera();
-        getReady();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(this.GameState == GameStates.BeforeGame && !gettingReady)
+        {
+            getReady();
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             useMainCamera();
@@ -35,14 +41,37 @@ public class GameManager : MonoBehaviour
         {
             useFPSCamera();
         }
+
+        // TODO: ゲームクリア条件を作る
+        // デバッグ用に60秒後にゲームクリアとしている
+        if (this.GameState != GameStates.GameClear
+         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, 3))
+        {
+            gotoGameClearState();
+        }
     }
 
     public void gotoGameOverState()
     {
+        this.GameState = GameStates.GameOver;
         this.timer.pauseTimer();
         this.player.SendMessage("gotoGameOverState");
         this.mainCamera.SendMessage("activateBlurWithAnim");
         this.GameOverUI.SetActive(true);
+    }
+
+    public void gotoGameClearState()
+    {
+        this.GameState = GameStates.GameClear;
+        this.timer.pauseTimer();
+        this.player.SendMessage("gotoGameClearState");
+        this.mainCamera.SendMessage("activateBlurWithAnim");
+        this.timer.hide();
+        this.GameClearUI.SetActive(true);
+        this.GameClearUI.GetComponentsInChildren<Text>()
+            .Where(x => x.name == "ClearTimeText")
+            .FirstOrDefault()
+            .text = "Clear Time: " + this.timer.currentTimeAsString() + "\n  Medal: Gold";
     }
 
     private void gotoGameState()
@@ -77,9 +106,11 @@ public class GameManager : MonoBehaviour
 
     private void getReady()
     {
+        gettingReady = true;
         this.mainCamera.SendMessage("activateBlurWithAnim");
         this.GameState = GameStates.BeforeGame;
         this.GameOverUI.SetActive(false);
+        this.GameClearUI.SetActive(false);
         this.timer.pauseTimer();
         this.timer.resetTimer();
         this.timer.hide();
@@ -99,6 +130,7 @@ public class GameManager : MonoBehaviour
         this.countdownText.text = "GO!";
         this.mainCamera.SendMessage("deactivateBlurWithAnim");
         this.GameState = GameStates.Game;
+        this.gettingReady = false;
         this.timer.show();
         this.timer.resumeTimer();
 

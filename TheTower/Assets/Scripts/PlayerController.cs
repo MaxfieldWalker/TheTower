@@ -38,10 +38,19 @@ public class PlayerController : MonoBehaviour {
         this.gameObject.transform.position = this.initialPosition;
         // 静止させる
         this.rigidBody.velocity = Vector3.zero;
+        this.rigidBody.useGravity = true;
     }
 
     public void gotoGameOverState()
     {
         this.rigidBody.velocity *= 0.01f;
+    }
+
+    public void gotoGameClearState()
+    {
+        // 完全に静止させる
+        this.rigidBody.useGravity = false;
+        this.rigidBody.velocity = Vector3.zero;
+        this.rigidBody.angularVelocity = Vector3.zero;
     }
 }
