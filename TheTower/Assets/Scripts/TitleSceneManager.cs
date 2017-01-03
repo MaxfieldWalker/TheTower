@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TitleSceneManager : MonoBehaviour
 {
     // GameObjecs
     public GameObject onePlayerButton;
     public GameObject twoPlayersButton;
+    public GameObject creditsButton;
     public GameObject level1Button;
     public GameObject level2Button;
     public GameObject level3Button;
@@ -41,6 +43,11 @@ public class TitleSceneManager : MonoBehaviour
         this.playerMode = GamePlayerMode.TwoPlayers;
         setActiveAllPlayerButtons(false);
         setActiveAllLevelButtons(true);
+    }
+
+    public void onCreditsButtonClick()
+    {
+        SceneManager.LoadScene("Credits");
     }
 
     public void onLevel1ButtonClick()
@@ -104,5 +111,6 @@ public class TitleSceneManager : MonoBehaviour
     {
         this.onePlayerButton.SetActive(value);
         this.twoPlayersButton.SetActive(value);
+        this.creditsButton.SetActive(value);
     }
 }
