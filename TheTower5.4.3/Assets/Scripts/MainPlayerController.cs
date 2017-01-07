@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts;
+using UnityEngine;
 
 public class MainPlayerController : MonoBehaviour {
     public GameManager gameManager;
@@ -22,37 +23,37 @@ public class MainPlayerController : MonoBehaviour {
         // SZXCで左を動かす
         if (Input.GetKey(KeyCode.S))
         {
-            this.mainPlayer.MoveLeft(MainPlayer.MoveDirection.Up);
+            this.mainPlayer.MoveLeft(MoveDirection.Up);
         }
         if (Input.GetKey(KeyCode.Z))
         {
-            this.mainPlayer.MoveLeft(MainPlayer.MoveDirection.Left);
+            this.mainPlayer.MoveLeft(MoveDirection.Left);
         }
         if (Input.GetKey(KeyCode.X))
         {
-            this.mainPlayer.MoveLeft(MainPlayer.MoveDirection.Down);
+            this.mainPlayer.MoveLeft(MoveDirection.Down);
         }
         if (Input.GetKey(KeyCode.C))
         {
-            this.mainPlayer.MoveLeft(MainPlayer.MoveDirection.Right);
+            this.mainPlayer.MoveLeft(MoveDirection.Right);
         }
 
         // GVBNで右を動かす
         if (Input.GetKey(KeyCode.G))
         {
-            this.mainPlayer.MoveRight(MainPlayer.MoveDirection.Up);
+            this.mainPlayer.MoveRight(MoveDirection.Up);
         }
         if (Input.GetKey(KeyCode.V))
         {
-            this.mainPlayer.MoveRight(MainPlayer.MoveDirection.Left);
+            this.mainPlayer.MoveRight(MoveDirection.Left);
         }
         if (Input.GetKey(KeyCode.B))
         {
-            this.mainPlayer.MoveRight(MainPlayer.MoveDirection.Down);
+            this.mainPlayer.MoveRight(MoveDirection.Down);
         }
         if (Input.GetKey(KeyCode.N))
         {
-            this.mainPlayer.MoveRight(MainPlayer.MoveDirection.Right);
+            this.mainPlayer.MoveRight(MoveDirection.Right);
         }
     }
 

@@ -1,32 +1,23 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Assets.Scripts;
+using UnityEngine;
 
 public class MainPlayer : MonoBehaviour {
     public ControlState CurrentControlState;
-    public bool Hand_L_Locked;
-    public bool Hand_R_Locked;
-    public bool Foot_L_Locked;
-    public bool Foot_R_Locked;
 
-    private Transform Hand_L;
-    private Transform Hand_R;
-    private Transform Foot_L;
-    private Transform Foot_R;
+    private ArmInfo Hand_L;
+    private ArmInfo Hand_R;
+    private ArmInfo Foot_L;
+    private ArmInfo Foot_R;    
 
     // Use this for initialization
     void Start () {
         // 両手にアサインされた状態から始める
         this.CurrentControlState = ControlState.Hands;
-        // 両手足がロックされた状態から始める
-        this.Hand_L_Locked = true;
-        this.Hand_R_Locked = true;
-        this.Foot_L_Locked = true;
-        this.Foot_R_Locked = true;
 
-        this.Hand_L = GameObject.Find("Hand_L").transform;
-        this.Hand_R = GameObject.Find("Hand_R").transform;
-        this.Foot_L = GameObject.Find("Foot_L").transform;
-        this.Foot_R = GameObject.Find("Foot_R").transform;
+        this.Hand_L = new ArmInfo(GameObject.Find("Hand_L").transform);
+        this.Hand_R = new ArmInfo(GameObject.Find("Hand_R").transform);
+        this.Foot_L = new ArmInfo(GameObject.Find("Foot_L").transform);
+        this.Foot_R = new ArmInfo(GameObject.Find("Foot_R").transform);
     }
 	
 	// Update is called once per frame
@@ -44,10 +35,10 @@ public class MainPlayer : MonoBehaviour {
         switch (this.CurrentControlState)
         {
             case ControlState.Hands:
-                Move_Hand_L(direction);
+                this.Hand_L.Move(direction);
                 break;
             case ControlState.Feet:
-                Move_Foot_L(direction);
+                this.Foot_L.Move(direction);
                 break;
             default:
                 break;
@@ -59,75 +50,25 @@ public class MainPlayer : MonoBehaviour {
         switch (this.CurrentControlState)
         {
             case ControlState.Hands:
-                Move_Hand_R(direction);
+                this.Hand_R.Move(direction);
                 break;
             case ControlState.Feet:
-                Move_Foot_R(direction);
+                this.Foot_R.Move(direction);
                 break;
             default:
                 break;
         }
     }
-
-    public void Move_Hand_L(MoveDirection direction)
-    {
-        if (this.Hand_L_Locked) return;
-
-        moveObject(this.Hand_L, direction);
-    }
-
-    public void Move_Hand_R(MoveDirection direction)
-    {
-        if (this.Hand_R_Locked) return;
-
-        moveObject(this.Hand_R, direction);
-    }
-
-    public void Move_Foot_L(MoveDirection direction)
-    {
-        if (this.Foot_L_Locked) return;
-
-        moveObject(this.Foot_L, direction);
-    }
-
-    public void Move_Foot_R(MoveDirection direction)
-    {
-        if (this.Foot_R_Locked) return;
-
-        moveObject(this.Foot_R, direction);
-    }
-
-    private void moveObject(Transform obj, MoveDirection direction)
-    {
-        switch (direction)
-        {
-            case MoveDirection.Up:
-                obj.Translate(0f, 0f, 0.1f);
-                break;
-            case MoveDirection.Right:
-                obj.Translate(0.1f, 0f, 0f);
-                break;
-            case MoveDirection.Down:
-                obj.Translate(0f, 0f, -0.1f);
-                break;
-            case MoveDirection.Left:
-                obj.Translate(-0.1f, 0f, 0f);
-                break;
-            default:
-                break;
-        }
-    }
-
 
     public void ToggleLockLeft()
     {
         switch (this.CurrentControlState)
         {
             case ControlState.Hands:
-                this.Hand_L_Locked = !this.Hand_L_Locked;
+                this.Hand_L.ToggleLock();
                 break;
             case ControlState.Feet:
-                this.Foot_L_Locked = !this.Foot_L_Locked;
+                this.Foot_L.ToggleLock();
                 break;
             default:
                 break;
@@ -139,21 +80,34 @@ public class MainPlayer : MonoBehaviour {
         switch (this.CurrentControlState)
         {
             case ControlState.Hands:
-                this.Hand_R_Locked = !this.Hand_R_Locked;
+                this.Hand_R.ToggleLock();
                 break;
             case ControlState.Feet:
-                this.Foot_R_Locked = !this.Foot_R_Locked;
+                this.Foot_R.ToggleLock();
                 break;
             default:
                 break;
         }
     }
 
-    public enum MoveDirection
+    public void delegateOnTriggerEnter(GameObject self, Collider other)
     {
-        Up,
-        Right,
-        Down,
-        Left
+        Debug.Log("trigger enter: " + self.name);
+
+        if (self.name == "Hand_L") this.Hand_L.Grab(other.gameObject);
+        if (self.name == "Hand_R") this.Hand_R.Grab(other.gameObject);
+        if (self.name == "Foot_L") this.Foot_L.Grab(other.gameObject);
+        if (self.name == "Foot_R") this.Foot_R.Grab(other.gameObject);
+    }
+
+
+    public void delegateOnTriggerExit(GameObject self, Collider other)
+    {
+        Debug.Log("trigger exit: " + self.name);
+
+        if (self.name == "Hand_L") this.Hand_L.Ungrab();
+        if (self.name == "Hand_R") this.Hand_R.Ungrab();
+        if (self.name == "Foot_L") this.Foot_L.Ungrab();
+        if (self.name == "Foot_R") this.Foot_R.Ungrab();
     }
 }
