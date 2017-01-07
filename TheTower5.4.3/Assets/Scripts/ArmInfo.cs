@@ -8,6 +8,7 @@ public class ArmInfo
     // GrabbableObjに触れているか
     private bool Grabbing { get; set; }
     private GameObject GrabbableObject { get; set; }
+    private Vector3 initialPostion;
 
     public ArmInfo(Transform obj)
     {
@@ -15,6 +16,7 @@ public class ArmInfo
         this.Grabbing = true;
         this.GrabbableObject = null;
         this.obj = obj;
+        this.initialPostion = obj.position;
     }
 
     public void Move(MoveDirection direction)
@@ -59,5 +61,22 @@ public class ArmInfo
 
         Debug.Log("toggle lock: " + this.obj.name);
         this.IsLocked = !this.IsLocked;
+    }
+
+    // 宙に浮いてかを返す
+    public bool IsFree
+    {
+        get
+        {
+            return !(IsLocked || Grabbing);
+        }
+    }
+
+    public void Reset()
+    {
+        this.obj.position = this.initialPostion;
+        this.IsLocked = true;
+        this.Grabbing = true;
+        this.GrabbableObject = null;
     }
 }

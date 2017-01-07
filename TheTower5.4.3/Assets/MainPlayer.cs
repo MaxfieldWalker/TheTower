@@ -1,16 +1,19 @@
 ﻿using Assets.Scripts;
 using UnityEngine;
 
-public class MainPlayer : MonoBehaviour {
+public class MainPlayer : MonoBehaviour
+{
+    public GameManager gameManager;
     public ControlState CurrentControlState;
 
     private ArmInfo Hand_L;
     private ArmInfo Hand_R;
     private ArmInfo Foot_L;
-    private ArmInfo Foot_R;    
+    private ArmInfo Foot_R;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         // 両手にアサインされた状態から始める
         this.CurrentControlState = ControlState.Hands;
 
@@ -19,11 +22,27 @@ public class MainPlayer : MonoBehaviour {
         this.Foot_L = new ArmInfo(GameObject.Find("Foot_L").transform);
         this.Foot_R = new ArmInfo(GameObject.Find("Foot_R").transform);
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+        // 両手足の状態をチェックして体を支えられない状態になっていたら
+        // ゲームオーバー状態に遷移する
+
+        if (this.gameManager.GameState == GameManager.GameStates.Game && !canSupportBody())
+        {
+            this.gameManager.gotoGameOverState();
+        }
+    }
+
+    private bool canSupportBody()
+    {
+        // 両手が離れている
+        if (this.Hand_L.IsFree && this.Hand_R.IsFree) return false;
+
+        // TODO: 両手足がひねられすぎて上半身と下半身が分離する場合もゲームオーバーとする
+        return true;
+    }
 
     public void ChangeState(ControlState state)
     {
@@ -90,6 +109,7 @@ public class MainPlayer : MonoBehaviour {
         }
     }
 
+    // 両手足の衝突をまとめて受け取る
     public void delegateOnTriggerEnter(GameObject self, Collider other)
     {
         Debug.Log("trigger enter: " + self.name);
@@ -100,7 +120,6 @@ public class MainPlayer : MonoBehaviour {
         if (self.name == "Foot_R") this.Foot_R.Grab(other.gameObject);
     }
 
-
     public void delegateOnTriggerExit(GameObject self, Collider other)
     {
         Debug.Log("trigger exit: " + self.name);
@@ -109,5 +128,16 @@ public class MainPlayer : MonoBehaviour {
         if (self.name == "Hand_R") this.Hand_R.Ungrab();
         if (self.name == "Foot_L") this.Foot_L.Ungrab();
         if (self.name == "Foot_R") this.Foot_R.Ungrab();
+    }
+
+    public void Respawn()
+    {
+        Debug.Log("PLAYER RESPAWN");
+
+        // 初期位置に戻す
+        this.Hand_L.Reset();
+        this.Hand_R.Reset();
+        this.Foot_L.Reset();
+        this.Foot_R.Reset();
     }
 }

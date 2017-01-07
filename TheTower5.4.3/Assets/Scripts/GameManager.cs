@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
         // TODO: ゲームクリア条件を作る
         // デバッグ用に60秒後にゲームクリアとしている
         if (this.GameState != GameStates.GameClear
-         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, 60))
+         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, 3))
         {
             gotoGameClearState();
         }
@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
 
     private void gotoGameState()
     {
-        this.player.SendMessage("respawn");
+        this.player.SendMessage("Respawn");
         getReady();
     }
 
