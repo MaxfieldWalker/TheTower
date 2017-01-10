@@ -7,13 +7,13 @@ public class MainPlayerController : MonoBehaviour {
     private Rigidbody rigidBody;
     private const float ForceAmount = 10.0f;
     private Vector3 initialPosition;
-    private MainPlayer mainPlayer;
+    private MainPlayerMoq mainPlayer;
 
 	// Use this for initialization
 	void Start () {
         this.rigidBody = this.gameObject.GetComponent<Rigidbody>();
         this.initialPosition = this.gameObject.transform.position;
-        this.mainPlayer = GetComponent<MainPlayer>();
+        this.mainPlayer = GetComponent<MainPlayerMoq>();
 	}
 	
 	// Update is called once per frame

@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class KinectManager : MonoBehaviour
 {
+    public Camera MainCamera;
+
     #region Public Properties
     // Unity側に公開しているプロパティ
     // ↓ TwoUsersを有効にしたら2人の認識ができそう
@@ -696,7 +698,8 @@ public class KinectManager : MonoBehaviour
 
     private void calcDisplaySize()
     {
-        Rect cameraRect = Camera.main.pixelRect;
+        //Rect cameraRect = Camera.main.pixelRect;
+        Rect cameraRect = this.MainCamera.pixelRect;
 
         float displayMapsWidthPercent = DisplayMapsWidthInPercent / 100f;
         float displayMapsHeightPercent = displayMapsWidthPercent * depthMapHeight / depthMapWidth;
@@ -707,7 +710,8 @@ public class KinectManager : MonoBehaviour
 
     private void initUserMap()
     {
-        Rect cameraRect = Camera.main.pixelRect;
+        //Rect cameraRect = Camera.main.pixelRect;
+        Rect cameraRect = this.MainCamera.pixelRect;
 
         // Initialize depth & label map related stuff
         usersMapSize = depthMapWidth * depthMapHeight;
@@ -730,7 +734,8 @@ public class KinectManager : MonoBehaviour
     private void initColorMap()
     {
         // get the main camera rectangle
-        Rect cameraRect = Camera.main.pixelRect;
+        //Rect cameraRect = Camera.main.pixelRect;
+        Rect cameraRect = this.MainCamera.pixelRect;
 
         // Initialize color map related stuff
         usersClrSize = KinectWrapper.GetColorWidth() * KinectWrapper.GetColorHeight();
@@ -919,7 +924,8 @@ public class KinectManager : MonoBehaviour
                         if (HandCursor1_R != null)
                         {
                             Vector3 viewportPos = Vector3.Lerp(HandCursor1_R.transform.position, gestureData.handScreenPos_R, 3 * Time.deltaTime);
-                            Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            //Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            Vector3 worldPos = this.MainCamera.ViewportToWorldPoint(viewportPos);
                             HandTexture_R.transform.position = worldPos;
 
                             HandCursor1_R.transform.position = viewportPos;
@@ -931,7 +937,8 @@ public class KinectManager : MonoBehaviour
                         if (HandCursor1_L != null)
                         {
                             Vector3 viewportPos = Vector3.Lerp(HandCursor1_L.transform.position, gestureData.handScreenPos_L, 3 * Time.deltaTime);
-                            Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            //Vector3 worldPos = Camera.main.ViewportToWorldPoint(viewportPos);
+                            Vector3 worldPos = this.MainCamera.ViewportToWorldPoint(viewportPos);
                             HandTexture_L.transform.position = worldPos;
 
                             HandCursor1_L.transform.position = viewportPos;

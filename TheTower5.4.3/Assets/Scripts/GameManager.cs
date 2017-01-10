@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public GameStates GameState;
+    public int ForceGameClearSeconds;
 
     public GameObject GameOverUI;
     public GameObject GameClearUI;
@@ -40,7 +41,7 @@ public class GameManager : MonoBehaviour
         // TODO: ゲームクリア条件を作る
         // デバッグ用に60秒後にゲームクリアとしている
         if (this.GameState != GameStates.GameClear
-         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, 3))
+         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameClearSeconds))
         {
             gotoGameClearState();
         }

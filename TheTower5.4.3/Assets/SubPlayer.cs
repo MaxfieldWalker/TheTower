@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class SubPlayer : MonoBehaviour {
-    public MainPlayer MainPlayer;
+    public MainPlayerBase MainPlayer;
 
 	// Use this for initialization
 	void Start () {
