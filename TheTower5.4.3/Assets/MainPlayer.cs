@@ -5,6 +5,13 @@ public class MainPlayer : MainPlayerBase {
     public CameraManager cameraManager;
     public ControlState CurrentControlState;
 
+    // 初期状態で掴んでいるオブジェクト
+    public GameObject Hand_L_Init_Grabbable;
+    public GameObject Hand_R_Init_Grabbable;
+    public GameObject Foot_L_Init_Grabbable;
+    public GameObject Foot_R_Init_Grabbable;
+
+
     private ArmInfo Hand_L;
     private ArmInfo Hand_R;
     private ArmInfo Foot_L;
@@ -19,6 +26,23 @@ public class MainPlayer : MainPlayerBase {
         this.Hand_R = new ArmInfo(this.transform.FindChild("1p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"));
         this.Foot_L = new ArmInfo(this.transform.FindChild("2p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere"));
         this.Foot_R = new ArmInfo(this.transform.FindChild("2p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"));
+
+        if (this.Hand_L_Init_Grabbable) {
+            this.Hand_L.SetPosition(this.Hand_L_Init_Grabbable.transform.position);
+            this.Hand_L.Grab(this.Hand_L_Init_Grabbable);
+        }
+        if (this.Hand_R_Init_Grabbable) {
+            this.Hand_R.SetPosition(this.Hand_R_Init_Grabbable.transform.position);
+            this.Hand_R.Grab(this.Hand_R_Init_Grabbable);
+        }
+        if (this.Foot_L_Init_Grabbable) {
+            this.Foot_L.SetPosition(this.Foot_L_Init_Grabbable.transform.position);
+            this.Foot_L.Grab(this.Foot_L_Init_Grabbable);
+        }
+        if (this.Foot_R_Init_Grabbable) {
+            this.Foot_R.SetPosition(this.Foot_R_Init_Grabbable.transform.position);
+            this.Foot_R.Grab(this.Foot_R_Init_Grabbable);
+        }
     }
 
     void Update() {
@@ -42,10 +66,10 @@ public class MainPlayer : MainPlayerBase {
         this.CurrentControlState = state;
 
         // 使うカメラを切り替える
-        if(state == ControlState.Hands) {
+        if (state == ControlState.Hands) {
             this.cameraManager.UsePlayer1Camera();
         }
-        if(state == ControlState.Feet) {
+        if (state == ControlState.Feet) {
             this.cameraManager.UsePlayer2Camera();
         }
     }

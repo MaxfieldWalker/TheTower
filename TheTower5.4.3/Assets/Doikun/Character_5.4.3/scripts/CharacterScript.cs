@@ -32,6 +32,7 @@ public class CharacterScript : MonoBehaviour {
 
         //足の移動
         int i = 0;
+        int j = 0;
         for (i = 0; i < ArmScr.Length; i++)
         {
             ArmScr[i].moveArm(i == mode);
@@ -40,13 +41,13 @@ public class CharacterScript : MonoBehaviour {
         //キャラクターの移動
         //キャラの座標、1pの左足先の座標、1pの右足先の座標、2pの左足先の座標、2pの右足先の座標
         float[][] position = new float[][] {
-                new float[] {transform.position.x , transform.position.y- 0.299968f, transform.position.z },
+                new float[] {transform.position.x , transform.position.y+ 0.1f, transform.position.z },
                 ArmScr[0].getSpherePosition(),
                 new float[] {ArmScr[1].SphScr.transform.position.x, ArmScr[1].SphScr.transform.position.y, ArmScr[1].SphScr.transform.position.z },
                 new float[] {ArmScr[2].SphScr.transform.position.x, ArmScr[2].SphScr.transform.position.y, ArmScr[2].SphScr.transform.position.z },
                 new float[] {ArmScr[3].SphScr.transform.position.x, ArmScr[3].SphScr.transform.position.y, ArmScr[3].SphScr.transform.position.z }};
 
-        for (i = 0; i < 2; i++)//x,y,z方向でそれぞれ行う
+        for (i = 0; i < 3; i++)//x,y,z方向でそれぞれ行う
         {
 
             //エネルギー式
@@ -63,15 +64,15 @@ public class CharacterScript : MonoBehaviour {
             //キャラが移動すると相対的に足先も動いてしまうので足先は元の位置に戻す
             if (i == 0) {
                 transform.Translate(-Ene / dx, 0, 0, Space.World);
-                for (i = 0; i < 4; i++) ArmScr[i].SphScr.transform.Translate(Ene / dx, 0, 0, Space.World);
+                for (j = 0; j < 4; j++) ArmScr[j].SphScr.transform.Translate(Ene / dx, 0, 0, Space.World);
             }
             if (i == 1) {
                 transform.Translate(0, -Ene / dx, 0, Space.World);
-                for (i = 0; i < 4; i++) ArmScr[i].SphScr.transform.Translate(0, Ene / dx, 0, Space.World);
+                for (j = 0; j < 4; j++) ArmScr[j].SphScr.transform.Translate(0, Ene / dx, 0, Space.World);
             }
             if (i == 2) {
                 transform.Translate(0, 0, -Ene / dx, Space.World);
-                for (i = 0; i < 4; i++) ArmScr[i].SphScr.transform.Translate(0, 0, Ene / dx, Space.World);
+                for (j = 0; j < 4; j++) ArmScr[j].SphScr.transform.Translate(0, 0, Ene / dx, Space.World);
             }
 
         }

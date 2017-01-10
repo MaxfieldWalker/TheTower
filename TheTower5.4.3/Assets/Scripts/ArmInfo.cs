@@ -1,8 +1,7 @@
 ﻿using Assets.Scripts;
 using UnityEngine;
 
-public class ArmInfo
-{
+public class ArmInfo {
     public bool IsLocked { get; set; }
     private Transform obj;
     // GrabbableObjに触れているか
@@ -10,8 +9,7 @@ public class ArmInfo
     private GameObject GrabbableObject { get; set; }
     private Vector3 initialPostion;
 
-    public ArmInfo(Transform obj)
-    {
+    public ArmInfo(Transform obj) {
         this.IsLocked = true;
         this.Grabbing = true;
         this.GrabbableObject = null;
@@ -19,12 +17,10 @@ public class ArmInfo
         this.initialPostion = obj.position;
     }
 
-    public void Move(MoveDirection direction)
-    {
+    public void Move(MoveDirection direction) {
         if (this.IsLocked) return;
 
-        switch (direction)
-        {
+        switch (direction) {
             case MoveDirection.Up:
                 obj.Translate(0f, 0f, 0.1f);
                 break;
@@ -42,20 +38,17 @@ public class ArmInfo
         }
     }
 
-    public void Grab(GameObject grabbableObj)
-    {
+    public void Grab(GameObject grabbableObj) {
         this.Grabbing = true;
         this.GrabbableObject = grabbableObj;
     }
 
-    public void Ungrab()
-    {
+    public void Ungrab() {
         this.Grabbing = false;
         this.GrabbableObject = null;
     }
 
-    public void ToggleLock()
-    {
+    public void ToggleLock() {
         // ロックされておらずGrabbableObjにも触れていない場合は何もしない
         if (!this.IsLocked && !Grabbing) return;
 
@@ -64,16 +57,17 @@ public class ArmInfo
     }
 
     // 宙に浮いてかを返す
-    public bool IsFree
-    {
-        get
-        {
+    public bool IsFree {
+        get {
             return !(IsLocked || Grabbing);
         }
     }
 
-    public void Reset()
-    {
+    public void SetPosition(Vector3 pos) {
+        this.obj.position = pos;
+    }
+
+    public void Reset() {
         this.obj.position = this.initialPostion;
         this.IsLocked = true;
         this.Grabbing = true;

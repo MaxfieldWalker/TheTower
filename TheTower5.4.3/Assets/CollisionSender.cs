@@ -5,6 +5,7 @@ public class CollisionSender : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
+        // TODO: 衝突相手を制御点だけに絞ればバチバチが直る?
         this.collisionReceiver.DelegateOnTriggerEnter(this.gameObject, other);
     }
 
