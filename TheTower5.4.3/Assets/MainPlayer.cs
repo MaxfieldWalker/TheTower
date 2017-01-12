@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class MainPlayer : MainPlayerBase {
+public class MainPlayer : MainPlayerBase, IGameStateElement {
     public GameManager gameManager;
     public CameraManager cameraManager;
     public ControlState CurrentControlState;
@@ -101,6 +102,13 @@ public class MainPlayer : MainPlayerBase {
     }
 
     public override void DelegateOnTriggerEnter(GameObject self, Collider other) {
+        // クリアオブジェクトに触れた瞬間ゲームクリア状態に遷移する
+        if (other.tag == "ClearGrabbableObj") {
+            this.gameManager.gotoGameClearState();
+        }
+
+        if (other.tag != "GrabbableObj") return;
+
         Debug.Log("trigger enter: " + self.tag);
 
         if (self.tag == "Hand_L") this.Hand_L.Grab(other.gameObject);
@@ -110,6 +118,8 @@ public class MainPlayer : MainPlayerBase {
     }
 
     public override void DelegateOnTriggerExit(GameObject self, Collider other) {
+        if (other.tag != "GrabbableObj") return;
+
         Debug.Log("trigger exit: " + self.tag);
 
         if (self.tag == "Hand_L") this.Hand_L.Ungrab();
@@ -142,5 +152,21 @@ public class MainPlayer : MainPlayerBase {
 
     public bool CanMoveFoot_R() {
         return !this.Foot_R.IsLocked;
+    }
+
+    public void GoToGameOverState() {
+        // 両手足を動かないようにする
+        this.Hand_L.ForceLock();
+        this.Hand_R.ForceLock();
+        this.Foot_L.ForceLock();
+        this.Foot_R.ForceLock();
+    }
+
+    public void GoToGameClearState() {
+        // 両手足を動かないようにする
+        this.Hand_L.ForceLock();
+        this.Hand_R.ForceLock();
+        this.Foot_L.ForceLock();
+        this.Foot_R.ForceLock();
     }
 }

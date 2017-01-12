@@ -46,8 +46,6 @@ public class BlurScript : MonoBehaviour
         }
     }
 
-
-
     public void activateBlurWithAnim()
     {
         this.blurEffect.enabled = true;

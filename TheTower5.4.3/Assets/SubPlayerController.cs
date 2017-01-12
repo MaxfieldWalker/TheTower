@@ -41,7 +41,7 @@ public class SubPlayerController : MonoBehaviour
             this.subPlayer.ToggleLockLeft();
         }
 
-        // Wで左のロックをトグルする
+        // Wで右のロックをトグルする
         if (Input.GetKeyDown(KeyCode.W))
         {
             this.subPlayer.ToggleLockRight();

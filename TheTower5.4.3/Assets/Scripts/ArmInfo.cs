@@ -50,13 +50,13 @@ public class ArmInfo {
 
     public void ToggleLock() {
         // ロックされておらずGrabbableObjにも触れていない場合は何もしない
-        if (!this.IsLocked && !Grabbing) return;
+        if (this.IsFree) return;
 
         Debug.Log("toggle lock: " + this.obj.name);
         this.IsLocked = !this.IsLocked;
     }
 
-    // 宙に浮いてかを返す
+    // 宙に浮いてるかを返す
     public bool IsFree {
         get {
             return !(IsLocked || Grabbing);
@@ -72,5 +72,12 @@ public class ArmInfo {
         this.IsLocked = true;
         this.Grabbing = true;
         this.GrabbableObject = null;
+    }
+
+    /// <summary>
+    /// ゲームクリア時などのために強制的にロックする
+    /// </summary>
+    public void ForceLock() {
+        this.IsLocked = true;
     }
 }
