@@ -839,6 +839,8 @@ public class KinectManager : MonoBehaviour
         // スケルトントラッキングで取得した値を丸める
         KinectWrapper.SetSkeletonSmoothing(0.7f);
 
+        Debug.Log("KINECT MANAGER INITIALIZED");
+
         // KinectManagerはシングルトンで使うためインスタンスを渡しておく
         instance = this;
         // Kinectを初期化したフラグを立てる
@@ -852,7 +854,7 @@ public class KinectManager : MonoBehaviour
         {
             initialize();
 
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
         }
         catch (DllNotFoundException ex)
         {

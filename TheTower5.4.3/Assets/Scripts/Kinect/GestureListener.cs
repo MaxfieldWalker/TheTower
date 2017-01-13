@@ -46,7 +46,6 @@ public class GestureListener : MonoBehaviour, KinectGestures.IGestureListener
         manager.DetectGesture(userId, KinectGestures.Gestures.SwipeRight);
         manager.DetectGesture(userId, KinectGestures.Gestures.Wave);
 
-
         GestureInfo.GetComponent<GUIText>().text = "Swipe left or right to change the slides.";
     }
 

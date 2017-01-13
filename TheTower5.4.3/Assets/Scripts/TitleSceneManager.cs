@@ -40,14 +40,17 @@ public class TitleSceneManager : MonoBehaviour
 
     public void on2PlayerButtonClick()
     {
-        this.playerMode = GamePlayerMode.TwoPlayers;
-        setActiveAllPlayerButtons(false);
-        setActiveAllLevelButtons(true);
+        // すぐゲームシーンに移動する
+        SceneManager.LoadScene("GameScene");
+
+        //this.playerMode = GamePlayerMode.TwoPlayers;
+        //setActiveAllPlayerButtons(false);
+        //setActiveAllLevelButtons(true);
     }
 
     public void onCreditsButtonClick()
     {
-        SceneManager.LoadScene("Credits");
+        SceneManager.LoadScene("CreditsScene");
     }
 
     public void onLevel1ButtonClick()

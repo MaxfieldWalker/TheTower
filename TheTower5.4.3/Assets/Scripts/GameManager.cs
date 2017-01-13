@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour {
     public GameStates GameState;
     public int ForceGameClearSeconds;
+    public int ForceGameOverSeconds;
 
     public GameObject GameOverUI;
     public GameObject GameClearUI;
@@ -28,6 +30,8 @@ public class GameManager : MonoBehaviour {
 
     public Animator gameClearUIAnimator;
 
+    public CameraManager cameraManager;
+
     private bool gettingReady = false;
 
     // Use this for initialization
@@ -45,18 +49,26 @@ public class GameManager : MonoBehaviour {
             useMainCamera();
         }
 
-        // TODO: ゲームクリア条件を作る
         // デバッグ用に60秒後にゲームクリアとしている
-        if (this.GameState != GameStates.GameClear
-         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameClearSeconds)) {
+        if (this.GameState != GameStates.GameClear &&
+            this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameClearSeconds)) {
             gotoGameClearState();
+        }
+
+        if (this.GameState != GameStates.GameOver &&
+            this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameOverSeconds)) {
+            gotoGameOverState();
         }
     }
 
     public void gotoGameOverState() {
         this.GameState = GameStates.GameOver;
+
         this.timer.pauseTimer();
         this.vrTimer.pauseTimer();
+        this.timer.hide();
+        this.vrTimer.hide();
+
         this.mainPlayer.GoToGameOverState();
 
         this.mainCamera.SendMessage("activateBlurWithAnim");
@@ -82,19 +94,27 @@ public class GameManager : MonoBehaviour {
 
         this.GameClearUI.SetActive(true);
         this.VRGameClearUI.SetActive(true);
+        
+        string clearTimeText = "Clear Time: " + this.timer.currentTimeAsString();
         this.GameClearUI.GetComponentsInChildren<Text>()
             .Where(x => x.name == "ClearTimeText")
-            .FirstOrDefault()
-            .text = "Clear Time: " + this.timer.currentTimeAsString() + "\n  Medal: Gold";
+            .First()
+            .text = clearTimeText;
+        this.VRGameClearUI.GetComponentsInChildren<Text>()
+            .Where(x => x.name == "VRClearTimeText")
+            .First()
+            .text = clearTimeText;
+
     }
 
     private void gotoGameState() {
-        // this.mainPlayer.Respawn();
+        this.mainPlayer.Respawn();
         getReady();
     }
 
     public void onBackToTitlePageClick() {
         Debug.Log("Back to title page button was clicked");
+        UnityEngine.VR.VRSettings.showDeviceView = true;
         SceneManager.LoadScene("TitleScene");
     }
 
@@ -111,6 +131,9 @@ public class GameManager : MonoBehaviour {
         gettingReady = true;
 
         this.mainCamera.SendMessage("activateBlurWithAnim");
+        
+        // ゲーム開始時は1Pのカメラを使うようにする
+        this.cameraManager.UsePlayer1Camera();
         this.vrPlayer1Blur.activateBlurWithAnim();
         this.vrPlayer2Blur.activateBlurWithAnim();
 

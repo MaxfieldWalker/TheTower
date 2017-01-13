@@ -6,6 +6,9 @@ public class MainPlayer : MainPlayerBase, IGameStateElement {
     public CameraManager cameraManager;
     public ControlState CurrentControlState;
 
+    public PlayingGameSE se;
+    private Vector3 initialBodyPosition;
+
     // 初期状態で掴んでいるオブジェクト
     public GameObject Hand_L_Init_Grabbable;
     public GameObject Hand_R_Init_Grabbable;
@@ -22,27 +25,45 @@ public class MainPlayer : MainPlayerBase, IGameStateElement {
         // 両手にアサインされた状態から始める
         this.CurrentControlState = ControlState.Hands;
 
+        this.initialBodyPosition = this.gameObject.transform.position;
+
         this.transform.FindChild("1p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere");
-        this.Hand_L = new ArmInfo(this.transform.FindChild("1p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere"));
-        this.Hand_R = new ArmInfo(this.transform.FindChild("1p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"));
-        this.Foot_L = new ArmInfo(this.transform.FindChild("2p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere"));
-        this.Foot_R = new ArmInfo(this.transform.FindChild("2p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"));
+        this.Hand_L = new ArmInfo(
+            this.transform.FindChild("1p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere"),
+            this.se,
+            this.Hand_L_Init_Grabbable);
+        this.Hand_R = new ArmInfo(
+            this.transform.FindChild("1p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"), 
+            this.se,
+            this.Hand_R_Init_Grabbable);
+        this.Foot_L = new ArmInfo(
+            this.transform.FindChild("2p").gameObject.transform.FindChild("armsLeft").gameObject.transform.Find("Sphere"),
+            this.se,
+            this.Foot_L_Init_Grabbable);
+        this.Foot_R = new ArmInfo(
+            this.transform.FindChild("2p").gameObject.transform.FindChild("armsRight").gameObject.transform.Find("Sphere"), 
+            this.se,
+            this.Foot_R_Init_Grabbable);
 
         if (this.Hand_L_Init_Grabbable) {
-            this.Hand_L.SetPosition(this.Hand_L_Init_Grabbable.transform.position);
-            this.Hand_L.Grab(this.Hand_L_Init_Grabbable);
+            this.Hand_L.Reset();
+            //this.Hand_L.SetPosition(this.Hand_L_Init_Grabbable.transform.position);
+            //this.Hand_L.Grab(this.Hand_L_Init_Grabbable);
         }
         if (this.Hand_R_Init_Grabbable) {
-            this.Hand_R.SetPosition(this.Hand_R_Init_Grabbable.transform.position);
-            this.Hand_R.Grab(this.Hand_R_Init_Grabbable);
+            this.Hand_R.Reset();
+            //this.Hand_R.SetPosition(this.Hand_R_Init_Grabbable.transform.position);
+            //this.Hand_R.Grab(this.Hand_R_Init_Grabbable);
         }
         if (this.Foot_L_Init_Grabbable) {
-            this.Foot_L.SetPosition(this.Foot_L_Init_Grabbable.transform.position);
-            this.Foot_L.Grab(this.Foot_L_Init_Grabbable);
+            this.Foot_L.Reset();
+            //this.Foot_L.SetPosition(this.Foot_L_Init_Grabbable.transform.position);
+            //this.Foot_L.Grab(this.Foot_L_Init_Grabbable);
         }
         if (this.Foot_R_Init_Grabbable) {
-            this.Foot_R.SetPosition(this.Foot_R_Init_Grabbable.transform.position);
-            this.Foot_R.Grab(this.Foot_R_Init_Grabbable);
+            this.Foot_R.Reset();
+            //this.Foot_R.SetPosition(this.Foot_R_Init_Grabbable.transform.position);
+            //this.Foot_R.Grab(this.Foot_R_Init_Grabbable);
         }
     }
 
@@ -56,8 +77,15 @@ public class MainPlayer : MainPlayerBase, IGameStateElement {
     }
 
     private bool canSupportBody() {
-        // 両手が離れている
-        if (this.Hand_L.IsFree && this.Hand_R.IsFree) return false;
+        // 掴むまたはロックされている四肢の数を数える
+        int count = 0;
+        count += !this.Hand_L.IsFree ? 1 : 0;
+        count += !this.Hand_R.IsFree ? 1 : 0;
+        count += !this.Foot_L.IsFree ? 1 : 0;
+        count += !this.Foot_R.IsFree ? 1 : 0;
+
+        // 数が0または1ならボディを支えられないとする
+        if (count < 2) return false;
 
         // TODO: 両手足がひねられすぎて上半身と下半身が分離する場合もゲームオーバーとする
         return true;
@@ -131,7 +159,10 @@ public class MainPlayer : MainPlayerBase, IGameStateElement {
     public void Respawn() {
         Debug.Log("PLAYER RESPAWN");
 
-        // 初期位置に戻す
+        // ボディ全体を初期位置に戻す
+        this.gameObject.transform.position = this.initialBodyPosition;
+
+        // 四肢を初期位置に戻す
         this.Hand_L.Reset();
         this.Hand_R.Reset();
         this.Foot_L.Reset();
