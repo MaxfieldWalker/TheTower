@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour {
     public Animator gameClearUIAnimator;
 
     public CameraManager cameraManager;
+    public bool HideSubPlayerUI;
+
+    public PlayingGameSE se;
 
     private bool gettingReady = false;
 
@@ -75,8 +78,12 @@ public class GameManager : MonoBehaviour {
         this.vrPlayer1Blur.activateBlurWithAnim();
         this.vrPlayer2Blur.activateBlurWithAnim();
 
-        this.GameOverUI.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.GameOverUI.SetActive(true);
+        }
         this.VRGameOverUI.SetActive(true);
+
+        this.se.PlaySEGameOver();
     }
 
     public void gotoGameClearState() {
@@ -92,9 +99,11 @@ public class GameManager : MonoBehaviour {
         this.timer.hide();
         this.vrTimer.hide();
 
-        this.GameClearUI.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.GameClearUI.SetActive(true);
+        }
         this.VRGameClearUI.SetActive(true);
-        
+
         string clearTimeText = "Clear Time: " + this.timer.currentTimeAsString();
         this.GameClearUI.GetComponentsInChildren<Text>()
             .Where(x => x.name == "ClearTimeText")
@@ -105,6 +114,7 @@ public class GameManager : MonoBehaviour {
             .First()
             .text = clearTimeText;
 
+        this.se.PlaySEGameClear();
     }
 
     private void gotoGameState() {
@@ -131,7 +141,7 @@ public class GameManager : MonoBehaviour {
         gettingReady = true;
 
         this.mainCamera.SendMessage("activateBlurWithAnim");
-        
+
         // ゲーム開始時は1Pのカメラを使うようにする
         this.cameraManager.UsePlayer1Camera();
         this.vrPlayer1Blur.activateBlurWithAnim();
@@ -156,7 +166,10 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator countdownCoroutine() {
         // 3, 2, 1とカウントダウンする
-        this.countdownText.gameObject.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.countdownText.gameObject.SetActive(true);
+        }
+
         this.vrCountdonwText.gameObject.SetActive(true);
         this.countdownText.text = "3";
         this.vrCountdonwText.text = "3";
@@ -178,8 +191,10 @@ public class GameManager : MonoBehaviour {
         this.GameState = GameStates.Game;
         this.gettingReady = false;
 
-        this.timer.show();
-        this.timer.resumeTimer();
+        if (!this.HideSubPlayerUI) {
+            this.timer.show();
+            this.timer.resumeTimer();
+        }
         this.vrTimer.show();
         this.vrTimer.resumeTimer();
 

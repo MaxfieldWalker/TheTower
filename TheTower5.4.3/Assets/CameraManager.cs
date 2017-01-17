@@ -8,8 +8,8 @@ public class CameraManager : MonoBehaviour {
 
     public PlayingGameSE se;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         // Vive側の映像をディスプレイにミラーしないようにする
         UnityEngine.VR.VRSettings.showDeviceView = false;
 

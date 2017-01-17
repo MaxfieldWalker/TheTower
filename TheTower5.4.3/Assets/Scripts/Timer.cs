@@ -51,6 +51,7 @@ public class Timer : MonoBehaviour
 
     public void show()
     {
+        this.gameObject.SetActive(true);
         updateView();
     }
 

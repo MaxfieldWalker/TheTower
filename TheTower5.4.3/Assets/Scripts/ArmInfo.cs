@@ -45,6 +45,7 @@ public class ArmInfo {
     public void Grab(GameObject grabbableObj) {
         this.Grabbing = true;
         this.GrabbableObject = grabbableObj;
+        se.PlaySECanLockArm();
     }
 
     public void Ungrab() {

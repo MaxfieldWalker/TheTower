@@ -14,6 +14,8 @@ public class TitleSceneManager : MonoBehaviour
     public GameObject level2Button;
     public GameObject level3Button;
 
+    public PlayingGameSE se;
+
     private static GameInfo gameInfo;
     private GameLevel gameLevel = GameLevel.Unknwon;
     private GamePlayerMode playerMode = GamePlayerMode.Unknown;
@@ -33,6 +35,8 @@ public class TitleSceneManager : MonoBehaviour
 
     public void on1PlayerButtonClick()
     {
+        this.se.PlaySEButtonClick();
+
         this.playerMode = GamePlayerMode.OnePlayer;
         setActiveAllPlayerButtons(false);
         setActiveAllLevelButtons(true);
@@ -40,6 +44,8 @@ public class TitleSceneManager : MonoBehaviour
 
     public void on2PlayerButtonClick()
     {
+        this.se.PlaySEButtonClick();
+
         // すぐゲームシーンに移動する
         SceneManager.LoadScene("GameScene");
 
@@ -50,23 +56,28 @@ public class TitleSceneManager : MonoBehaviour
 
     public void onCreditsButtonClick()
     {
+        this.se.PlaySEButtonClick();
+
         SceneManager.LoadScene("CreditsScene");
     }
 
     public void onLevel1ButtonClick()
     {
+        this.se.PlaySEButtonClick();
         this.gameLevel = GameLevel.Level1;
         goGameScene();
     }
 
     public void onLevel2ButtonClick()
     {
+        this.se.PlaySEButtonClick();
         this.gameLevel = GameLevel.Level2;
         goGameScene();
     }
 
     public void onLevel3ButtonClick()
     {
+        this.se.PlaySEButtonClick();
         this.gameLevel = GameLevel.Level3;
         goGameScene();
     }
