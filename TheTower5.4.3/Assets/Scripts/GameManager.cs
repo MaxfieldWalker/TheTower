@@ -109,6 +109,7 @@ public class GameManager : MonoBehaviour {
             .Where(x => x.name == "ClearTimeText")
             .First()
             .text = clearTimeText;
+        clearTimeText = "Clear Time: " + this.vrTimer.currentTimeAsString();
         this.VRGameClearUI.GetComponentsInChildren<Text>()
             .Where(x => x.name == "VRClearTimeText")
             .First()
