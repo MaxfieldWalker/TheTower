@@ -57,6 +57,10 @@ public class BlurScript : MonoBehaviour
         changeBlurAmoutTo(0);
     }
 
+    public void deactivateBlur() {
+        this.blurEffect.enabled = false;
+    }
+
     private void changeBlurAmoutTo(int amount)
     {
         this.blurAmountSholdChange = true;

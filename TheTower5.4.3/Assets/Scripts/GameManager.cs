@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour {
     public GameStates GameState;
     public int ForceGameClearSeconds;
+    public int ForceGameOverSeconds;
 
     public GameObject GameOverUI;
     public GameObject GameClearUI;
@@ -28,6 +30,11 @@ public class GameManager : MonoBehaviour {
 
     public Animator gameClearUIAnimator;
 
+    public CameraManager cameraManager;
+    public bool HideSubPlayerUI;
+
+    public PlayingGameSE se;
+
     private bool gettingReady = false;
 
     // Use this for initialization
@@ -45,26 +52,38 @@ public class GameManager : MonoBehaviour {
             useMainCamera();
         }
 
-        // TODO: ゲームクリア条件を作る
         // デバッグ用に60秒後にゲームクリアとしている
-        if (this.GameState != GameStates.GameClear
-         && this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameClearSeconds)) {
+        if (this.GameState != GameStates.GameClear &&
+            this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameClearSeconds)) {
             gotoGameClearState();
+        }
+
+        if (this.GameState != GameStates.GameOver &&
+            this.timer.currentTimeSpan() > new System.TimeSpan(0, 0, ForceGameOverSeconds)) {
+            gotoGameOverState();
         }
     }
 
     public void gotoGameOverState() {
         this.GameState = GameStates.GameOver;
+
         this.timer.pauseTimer();
         this.vrTimer.pauseTimer();
+        this.timer.hide();
+        this.vrTimer.hide();
+
         this.mainPlayer.GoToGameOverState();
 
         this.mainCamera.SendMessage("activateBlurWithAnim");
         this.vrPlayer1Blur.activateBlurWithAnim();
         this.vrPlayer2Blur.activateBlurWithAnim();
 
-        this.GameOverUI.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.GameOverUI.SetActive(true);
+        }
         this.VRGameOverUI.SetActive(true);
+
+        this.se.PlaySEGameOver();
     }
 
     public void gotoGameClearState() {
@@ -80,21 +99,33 @@ public class GameManager : MonoBehaviour {
         this.timer.hide();
         this.vrTimer.hide();
 
-        this.GameClearUI.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.GameClearUI.SetActive(true);
+        }
         this.VRGameClearUI.SetActive(true);
+
+        string clearTimeText = "Clear Time: " + this.timer.currentTimeAsString();
         this.GameClearUI.GetComponentsInChildren<Text>()
             .Where(x => x.name == "ClearTimeText")
-            .FirstOrDefault()
-            .text = "Clear Time: " + this.timer.currentTimeAsString() + "\n  Medal: Gold";
+            .First()
+            .text = clearTimeText;
+        clearTimeText = "Clear Time: " + this.vrTimer.currentTimeAsString();
+        this.VRGameClearUI.GetComponentsInChildren<Text>()
+            .Where(x => x.name == "VRClearTimeText")
+            .First()
+            .text = clearTimeText;
+
+        this.se.PlaySEGameClear();
     }
 
     private void gotoGameState() {
-        // this.mainPlayer.Respawn();
+        this.mainPlayer.Respawn();
         getReady();
     }
 
     public void onBackToTitlePageClick() {
         Debug.Log("Back to title page button was clicked");
+        UnityEngine.VR.VRSettings.showDeviceView = true;
         SceneManager.LoadScene("TitleScene");
     }
 
@@ -111,6 +142,9 @@ public class GameManager : MonoBehaviour {
         gettingReady = true;
 
         this.mainCamera.SendMessage("activateBlurWithAnim");
+
+        // ゲーム開始時は1Pのカメラを使うようにする
+        this.cameraManager.UsePlayer1Camera();
         this.vrPlayer1Blur.activateBlurWithAnim();
         this.vrPlayer2Blur.activateBlurWithAnim();
 
@@ -133,7 +167,10 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator countdownCoroutine() {
         // 3, 2, 1とカウントダウンする
-        this.countdownText.gameObject.SetActive(true);
+        if (!this.HideSubPlayerUI) {
+            this.countdownText.gameObject.SetActive(true);
+        }
+
         this.vrCountdonwText.gameObject.SetActive(true);
         this.countdownText.text = "3";
         this.vrCountdonwText.text = "3";
@@ -155,8 +192,10 @@ public class GameManager : MonoBehaviour {
         this.GameState = GameStates.Game;
         this.gettingReady = false;
 
-        this.timer.show();
-        this.timer.resumeTimer();
+        if (!this.HideSubPlayerUI) {
+            this.timer.show();
+            this.timer.resumeTimer();
+        }
         this.vrTimer.show();
         this.vrTimer.resumeTimer();
 

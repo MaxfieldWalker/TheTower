@@ -5,6 +5,8 @@ public class MainPlayerMoq : MainPlayerBase {
     public GameManager gameManager;
     public ControlState CurrentControlState;
 
+    public PlayingGameSE se;
+
     private ArmInfo Hand_L;
     private ArmInfo Hand_R;
     private ArmInfo Foot_L;
@@ -15,10 +17,10 @@ public class MainPlayerMoq : MainPlayerBase {
         // 両手にアサインされた状態から始める
         this.CurrentControlState = ControlState.Hands;
 
-        this.Hand_L = new ArmInfo(GameObject.Find("Hand_L").transform);
-        this.Hand_R = new ArmInfo(GameObject.Find("Hand_R").transform);
-        this.Foot_L = new ArmInfo(GameObject.Find("Foot_L").transform);
-        this.Foot_R = new ArmInfo(GameObject.Find("Foot_R").transform);
+        this.Hand_L = new ArmInfo(GameObject.Find("Hand_L").transform,this.se,null);
+        this.Hand_R = new ArmInfo(GameObject.Find("Hand_R").transform, this.se, null);
+        this.Foot_L = new ArmInfo(GameObject.Find("Foot_L").transform, this.se, null);
+        this.Foot_R = new ArmInfo(GameObject.Find("Foot_R").transform, this.se, null);
     }
 
     // Update is called once per frame

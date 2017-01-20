@@ -115,11 +115,15 @@ public class MainCharacterKinectController : MonoBehaviour {
         uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
         if (playerID <= 0) {
-            // 位置と回転を初期値にリセットする
-            if (transform.position != initialPosition) transform.position = initialPosition;
-            if (transform.rotation != initialRotation) transform.rotation = initialRotation;
             return;
         }
+
+        //if (playerID <= 0) {
+        //    // 位置と回転を初期値にリセットする
+        //    if (transform.position != initialPosition) transform.position = initialPosition;
+        //    if (transform.rotation != initialRotation) transform.rotation = initialRotation;
+        //    return;
+        //}
 
         // Kinectからユーザーの座標(尻の座標)を取得する
         Vector3 posPointMan = KinectManager.Instance.GetUserPosition(playerID);
